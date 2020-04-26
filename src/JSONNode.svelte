@@ -1,15 +1,16 @@
 <script>
+  import Icon from 'svelte-awesome'
+  import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons'
   import { SEARCH_PROPERTY, SEARCH_VALUE } from './search'
-  import { getJSONNodeType } from './utils/typeUtils.js'
   import classnames from 'classnames'
   import { isUrl, valueType } from './utils/typeUtils'
-  import isEmpty from 'lodash/isEmpty'
   import { escapeHTML } from './utils/stringUtils'
 
   export let key = 'root'
   export let value
   export let searchResult
-  export let onChange
+  export let onChangeKey
+  export let onChangeValue
   export let expanded = true
 
   const DEFAULT_LIMIT = 10000
@@ -18,9 +19,10 @@
 
   $: type = valueType (value)
 
+  // FIXME: this should not be needed, use Svelte notation for looping over an object
   $: props = type === 'object'
-    ? Object.keys(value).map(key => {
-      return { key, value: value[key] }
+    ? Object.keys(value).map(prop => {
+      return { key: prop, value: value[prop] }
     })
     : undefined
 
@@ -31,6 +33,7 @@
     : undefined
 
   const escapeUnicode = false // TODO: pass via options
+  $: escapedKey = escapeHTML(key, escapeUnicode)
   $: escapedValue = escapeHTML(value, escapeUnicode)
 
   $: valueClass = classnames('value', type, {
@@ -45,23 +48,39 @@
     expanded = !expanded
   }
 
-  function handleInput (event) {
-    const value = event.target.innerText
-    onChange(value, key)
+  function handleKeyInput (event) {
+    const newKey = event.target.innerText
+    onChangeKey(newKey, key)
   }
 
-  function handleChange (childValue, childKey) {
+  function handleValueInput (event) {
+    const value = event.target.innerText
+    onChangeValue(value, key)
+  }
+
+  function handleChangeKey (newChildKey, oldChildKey) {
+    if (type === 'object') {
+      const updatedValue = {
+        ...value,
+        [newChildKey]: value[oldChildKey]
+      }
+      delete updatedValue[oldChildKey]
+      onChangeValue(updatedValue, key)
+    }
+  }
+
+  function handleChangeValue (childValue, childKey) {
     // FIXME: use an immutability setIn function here
     if (type === 'array') {
       const updatedValue = value.slice(0) // copy the array
       updatedValue[childKey] = childValue
-      onChange(updatedValue, key)
+      onChangeValue(updatedValue, key)
     } else if (type === 'object') {
       const updatedValue = {
         ...value,
         [childKey]: childValue
       }
-      onChange(updatedValue, key)
+      onChangeValue(updatedValue, key)
     }
   }
 
@@ -74,9 +93,23 @@
   @import './styles.scss';
 
   .json-node {
-    font-family: $fontFamily;
-    font-size: $fontSize;
+    font-family: $font-family;
+    font-size: $font-size;
     color: $black;
+    line-height: $line-height;
+  }
+
+  .expand {
+    position: relative;
+    width: $line-height;
+    height: $line-height;
+    padding: 0;
+    margin: 0;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: $gray-icon;
+    font-size: $font-size-icon;
   }
 
   .key,
@@ -139,7 +172,6 @@
     }
   }
 
-
   div.empty {
     border: 1px dotted lightgray;
     border-radius: 2px;
@@ -170,18 +202,22 @@
 
 <div class='json-node'>
   {#if type === 'array' || type === 'object'}
-    <button on:click={toggle}>
+    <button class='expand' on:click={toggle}>
       {#if expanded}
-        collapse
+        <Icon data={faCaretDown} />
       {:else}
-        expand
+        <Icon data={faCaretRight} />
       {/if}
     </button>
   {/if}
   {#if typeof key === 'string'}
-    <span class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}">
-      {key}
-    </span>
+    <div
+      class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+      contenteditable="true"
+      on:input={handleKeyInput}
+    >
+      {escapedKey}
+    </div>
     <span class="separator">:</span>
   {/if}
   {#if type === 'array'}
@@ -192,7 +228,8 @@
             key={index}
             value={item}
             searchResult={searchResult ? searchResult[index] : undefined}
-            onChange={handleChange}
+            onChangeKey={handleChangeKey}
+            onChangeValue={handleChangeValue}
           />
         {/each}
         {#if limited}
@@ -210,7 +247,8 @@
             key={prop.key}
             value={prop.value}
             searchResult={searchResult ? searchResult[prop.key] : undefined}
-            onChange={handleChange}
+            onChangeKey={handleChangeKey}
+            onChangeValue={handleChangeValue}
           />
         {/each}
       </div>
@@ -219,7 +257,7 @@
     <div
       class={valueClass}
       contenteditable="true"
-      on:input={handleInput}
+      on:input={handleValueInput}
     >
       {escapedValue}
     </div>

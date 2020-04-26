@@ -10,8 +10,7 @@
 export function isObject (value) {
   return typeof value === 'object' &&
       value !== null &&
-      !Array.isArray(value) &&
-      (!value._meta || typeof value._meta.value === 'undefined')
+      !Array.isArray(value)
 }
 
 /**
@@ -35,19 +34,6 @@ export function isValue (value) {
  */
 export function isObjectOrArray (value) {
   return typeof value === 'object' && value !== null
-}
-
-/**
- * Get the JSON node type of a value: 'array', 'object', or 'value'
- * @param {*} json
- * @returns {string}
- */
-export function getJSONNodeType (json) {
-  return Array.isArray(json)
-    ? 'array'
-    : json && typeof json === 'object'
-      ? 'object'
-      : 'value'
 }
 
 /**

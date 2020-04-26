@@ -98,8 +98,13 @@
 
 	// json = loadLargeJson()
 
-	function handleChange (value, key) {
-		console.log('App handleChange')
+	function handleChangeKey (key, oldKey) {
+		console.log('App handleChangeKey', { key, oldKey })
+		// TODO: this should not happen?
+	}
+
+	function handleChangeValue (value, key) {
+		console.log('App handleChangeValue')
 		json = value
 	}
 
@@ -174,7 +179,7 @@
 			value={json}
 			searchResult={searchResult}
 			expanded={true}
-			onChange={handleChange}
+			onChangeValue={handleChangeValue}
 	/>
 </div>
 
