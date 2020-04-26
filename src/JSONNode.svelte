@@ -1,5 +1,6 @@
 <script>
-  import { getType, SEARCH_PROPERTY, SEARCH_VALUE } from './utils'
+  import { SEARCH_PROPERTY, SEARCH_VALUE } from './search'
+  import { getJSONNodeType } from './utils/typeUtils.js'
 
   export let key = 'root'
   export let value
@@ -12,7 +13,7 @@
 
   let limit = DEFAULT_LIMIT
 
-  $: type = getType(value)
+  $: type = getJSONNodeType(value)
 
   $: props = type === 'object'
     ? Object.keys(value).map(key => {

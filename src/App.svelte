@@ -2,7 +2,7 @@
 	import Icon from 'svelte-awesome'
 	import { faSearch  } from '@fortawesome/free-solid-svg-icons'
 	import Node from './JSONNode.svelte'
-	import { search } from './utils'
+	import { search } from './search'
 	import { beforeUpdate, afterUpdate } from 'svelte'
 
 	export let searchText = ''

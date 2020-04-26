@@ -1,13 +1,7 @@
+import { getJSONNodeType } from './utils/typeUtils'
+
 export const SEARCH_PROPERTY = Symbol('searchProperty')
 export const SEARCH_VALUE = Symbol('searchValue')
-
-export function getType (json) {
-  return Array.isArray(json)
-    ? 'array'
-    : json && typeof json === 'object'
-      ? 'object'
-      : 'value'
-}
 
 export function search (key, value, searchText) {
   let results
@@ -16,7 +10,7 @@ export function search (key, value, searchText) {
     results = createOrAdd(results, SEARCH_PROPERTY, true)
   }
 
-  const type = getType(value)
+  const type = getJSONNodeType(value)
   if (type === 'array') {
     value.forEach((item, index) => {
       let childResults = search(index, item, searchText)
