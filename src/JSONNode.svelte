@@ -1,19 +1,22 @@
 <script>
   import { SEARCH_PROPERTY, SEARCH_VALUE } from './search'
   import { getJSONNodeType } from './utils/typeUtils.js'
+  import classnames from 'classnames'
+  import { isUrl, valueType } from './utils/typeUtils'
+  import isEmpty from 'lodash/isEmpty'
+  import { escapeHTML } from './utils/stringUtils'
 
   export let key = 'root'
   export let value
   export let searchResult
   export let onChange
   export let expanded = true
-  export let indentation = 0
 
   const DEFAULT_LIMIT = 10000
 
   let limit = DEFAULT_LIMIT
 
-  $: type = getJSONNodeType(value)
+  $: type = valueType (value)
 
   $: props = type === 'object'
     ? Object.keys(value).map(key => {
@@ -26,6 +29,17 @@
   $: items = type === 'array'
     ? limited ? value.slice(0, limit) : value
     : undefined
+
+  const escapeUnicode = false // TODO: pass via options
+  $: escapedValue = escapeHTML(value, escapeUnicode)
+
+  $: valueClass = classnames('value', type, {
+    url: isUrl(value),
+    empty: escapedValue.length === 0,
+    search: searchResult
+      ? !!searchResult[SEARCH_VALUE]
+      : false
+  })
 
   function toggle () {
     expanded = !expanded
@@ -57,33 +71,105 @@
 </script>
 
 <style type="text/scss">
-  $search-background-color: gold;
+  @import './styles.scss';
 
-  .key {
-    color: gray;
+  .json-node {
+    font-family: $fontFamily;
+    font-size: $fontSize;
+    color: $black;
   }
-  .key.search {
-    background-color: $search-background-color;
+
+  .key,
+  .value {
+    min-width: 16px;
+    word-break: normal;
+    padding: 0 $input-padding;
+    outline: none;
+
+    border-radius: 1px;
+    // flex: 1 1 auto !important;
+    display: inline; // FIXME: use flex?
+
+    &:focus {
+      box-shadow: 0 0 3px 1px #008fd5;
+      z-index: 1;
+    }
   }
+
+  // FIXME: there is whitespace added around the separator in the HTML
+  .separator {
+    color: $gray;
+  }
+
   .items,
   .props {
-    padding-left: 24px;
+    padding-left: $indentation-width;
   }
   .value {
-    display: inline-block;
-    padding: 3px;
+
+    &.string {
+      color: #008000;
+    }
+
+    &.object,
+    &.array {
+      min-width: 16px;
+      color: $gray;
+    }
+
+    &.number {
+      color: #ee422e;
+    }
+
+    &.boolean {
+      color: #ff8c00;
+    }
+
+    &.null {
+      color: #004ED0;
+    }
+
+    &.invalid {
+      color: #000000;
+    }
+
+    &.url {
+      color: green;
+      text-decoration: underline;
+    }
   }
+
+
+  div.empty {
+    border: 1px dotted lightgray;
+    border-radius: 2px;
+    padding: 0 $input-padding;
+    line-height: 17px;
+  }
+
+  div.empty::after,
+  div.empty::after {
+    pointer-events: none;
+    color: lightgray;
+    font-size: 8pt;
+  }
+
+  div.property.empty::after {
+    content: 'key';
+  }
+
+  div.value.empty::after {
+    content: 'value';
+  }
+
   .key.search,
   .value.search {
-    background-color: $search-background-color;
+    background-color: $highlight-color;
   }
 </style>
 
 <div class='json-node'>
-    <span class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}">
-        {key} : 
-    </span>
-  {#if type !== 'value'}
+  {#if type === 'array' || type === 'object'}
     <button on:click={toggle}>
       {#if expanded}
         collapse
@@ -91,6 +177,12 @@
         expand
       {/if}
     </button>
+  {/if}
+  {#if typeof key === 'string'}
+    <span class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}">
+      {key}
+    </span>
+    <span class="separator">:</span>
   {/if}
   {#if type === 'array'}
     {#if expanded}
@@ -100,7 +192,6 @@
             key={index}
             value={item}
             searchResult={searchResult ? searchResult[index] : undefined}
-            indentation={indentation + 1}
             onChange={handleChange}
           />
         {/each}
@@ -119,7 +210,6 @@
             key={prop.key}
             value={prop.value}
             searchResult={searchResult ? searchResult[prop.key] : undefined}
-            indentation={indentation + 1}
             onChange={handleChange}
           />
         {/each}
@@ -127,11 +217,11 @@
     {/if}
   {:else}
     <div
-      class="value {searchResult && searchResult[SEARCH_VALUE] ? 'search' : ''}"
+      class={valueClass}
       contenteditable="true"
       on:input={handleInput}
     >
-      {value}
+      {escapedValue}
     </div>
   {/if}
 </div>
