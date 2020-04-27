@@ -4,9 +4,8 @@
   import { SEARCH_PROPERTY, SEARCH_VALUE } from './search'
   import classnames from 'classnames'
   import { isUrl, valueType } from './utils/typeUtils'
-  import { escapeHTML } from './utils/stringUtils'
-  import uniqueId from 'lodash/uniqueId.js'
-  import remove from 'lodash/remove.js'
+  import { escapeHTML } from './utils/stringUtils.js'
+  import { createUpdateProps } from './utils/updateProps.js'
 
   export let key = 'root'
   export let value
@@ -18,32 +17,18 @@
   const DEFAULT_LIMIT = 10000
   const escapeUnicode = false // TODO: pass via options
 
+  // create lazy, memoized updateProps function
+  let updateProps = function lazyUpdateProps (value) {
+    updateProps = createUpdateProps()
+    return updateProps(value)
+  }
+
   let limit = DEFAULT_LIMIT
 
   $: type = valueType (value)
 
-
-  function getOrCreateId (childKey) {
-    if (ids === undefined) {
-      ids = {}
-    }
-
-    if (ids[childKey] === undefined) {
-      ids[childKey] = uniqueId()
-    }
-
-    return ids[childKey]
-  }
-
-  // FIXME: this should not be needed, use Svelte notation for looping over an object
-  let ids = undefined
   $: props = type === 'object'
-    ? Object.keys(value).map(childKey => {
-      return {
-        id: getOrCreateId(childKey),
-        key: childKey
-      }
-    })
+    ? updateProps(value)
     : undefined
 
   $: limited = type === 'array' && value.length > limit
@@ -88,9 +73,10 @@
         }
       })
 
-      if (ids !== undefined) {
-        ids[newChildKey] = ids[oldChildKey]
-        delete ids[oldChildKey]
+      const index = props.findIndex(item => item.key === oldChildKey)
+      if (index !== -1) {
+        // FIXME: make immutable (not possible as long as prevProps is stored in updateProps
+        props[index].key = newChildKey
       }
 
       onChangeValue(updatedValue, key)
