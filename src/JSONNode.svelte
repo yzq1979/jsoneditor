@@ -3,9 +3,10 @@
   import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons'
   import { SEARCH_PROPERTY, SEARCH_VALUE } from './search'
   import classnames from 'classnames'
-  import { isUrl, valueType } from './utils/typeUtils'
+  import { isUrl, stringConvert, valueType } from './utils/typeUtils'
   import { escapeHTML } from './utils/stringUtils.js'
   import { createUpdateProps } from './utils/updateProps.js'
+  import { unescapeHTML } from './utils/stringUtils'
 
   export let key = undefined
   export let value
@@ -53,13 +54,14 @@
   }
 
   function handleKeyInput (event) {
-    const newKey = event.target.innerText
+    const newKey = unescapeHTML(event.target.innerText)
     onChangeKey(newKey, key)
   }
 
   function handleValueInput (event) {
-    const value = event.target.innerText
-    onChangeValue(value, key)
+    const valueText = unescapeHTML(event.target.innerText)
+    const newValue = stringConvert(valueText) // TODO: implement support for type "string"
+    onChangeValue(newValue, key)
   }
 
   function handleChangeKey (newChildKey, oldChildKey) {
