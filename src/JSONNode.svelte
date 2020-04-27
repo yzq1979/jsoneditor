@@ -7,12 +7,12 @@
   import { escapeHTML } from './utils/stringUtils.js'
   import { createUpdateProps } from './utils/updateProps.js'
 
-  export let key = 'root'
+  export let key = undefined
   export let value
   export let searchResult
   export let onChangeKey
   export let onChangeValue
-  export let expanded = true
+  export let expanded = false
 
   const DEFAULT_LIMIT = 10000
   const escapeUnicode = false // TODO: pass via options
@@ -142,9 +142,23 @@
   }
 
   // FIXME: there is whitespace added around the separator in the HTML
-  .separator {
+  .separator,
+  .delimiter {
     display: inline;
     color: $gray;
+  }
+
+  .tag {
+    border: none;
+    font-size: $font-size-small;
+    font-family: $font-family-menu;
+    color: white;
+    background: $light-gray;
+    border-radius: 2px;
+    padding: 0 4px;
+    margin-left: $input-padding;
+    margin-top: 2px;
+    cursor: pointer;
   }
 
   .items,
@@ -214,26 +228,33 @@
 </style>
 
 <div class='json-node'>
-  {#if type === 'array' || type === 'object'}
-    <button class='expand' on:click={toggle}>
-      {#if expanded}
-        <Icon data={faCaretDown} />
-      {:else}
-        <Icon data={faCaretRight} />
-      {/if}
-    </button>
-  {/if}
-  {#if typeof key === 'string'}
-    <div
-      class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
-      contenteditable="true"
-      on:input={handleKeyInput}
-    >
-      {escapedKey}
-    </div>
-    <span class="separator">:</span>
-  {/if}
   {#if type === 'array'}
+    <div class='header'>
+      <button class='expand' on:click={toggle}>
+        {#if expanded}
+          <Icon data={faCaretDown} />
+        {:else}
+          <Icon data={faCaretRight} />
+        {/if}
+      </button>
+      {#if typeof key === 'string'}
+        <div
+          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+          contenteditable="true"
+          on:input={handleKeyInput}
+        >
+          {escapedKey}
+        </div>
+        <span class="separator">:</span>
+      {/if}
+      {#if expanded}
+        <span class="delimiter">[</span>
+      {:else}
+        <span class="delimiter">[</span>
+        <button class="tag" on:click={() => expanded = true}>{value.length} items</button>
+        <span class="delimiter">]</span>
+      {/if}
+    </div>
     {#if expanded}
       <div class="items">
         {#each items as item, index (index)}
@@ -251,8 +272,37 @@
           </div>
         {/if}
       </div>
+      <div class="footer">
+        <span class="delimiter">]</span>
+      </div>
     {/if}
   {:else if type === 'object'}
+    <div class='header'>
+      <button class='expand' on:click={toggle}>
+        {#if expanded}
+          <Icon data={faCaretDown} />
+        {:else}
+          <Icon data={faCaretRight} />
+        {/if}
+      </button>
+      {#if typeof key === 'string'}
+        <div
+          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+          contenteditable="true"
+          on:input={handleKeyInput}
+        >
+          {escapedKey}
+        </div>
+        <span class="separator">:</span>
+      {/if}
+      {#if expanded}
+        <span class="delimiter">&#123;</span>
+      {:else}
+        <span class="delimiter">&#123;</span>
+        <button class="tag" on:click={() => expanded = true}>{props.length} props</button>
+        <span class="delimiter">}</span>
+      {/if}
+    </div>
     {#if expanded}
       <div class="props">
         {#each props as prop (prop.id)}
@@ -265,8 +315,21 @@
           />
         {/each}
       </div>
+      <div class="footer">
+        <span class="delimiter">}</span>
+      </div>
     {/if}
   {:else}
+    {#if typeof key === 'string'}
+      <div
+        class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+        contenteditable="true"
+        on:input={handleKeyInput}
+      >
+        {escapedKey}
+      </div>
+      <span class="separator">:</span>
+    {/if}
     <div
       class={valueClass}
       contenteditable="true"

@@ -8,33 +8,33 @@
 	export let searchText = ''
 
 	let json = {
-		// 'array': [1, 2, 3, {
-		// 	name: 'Item ' + 2,
-		// 	id: String(2),
-		// 	index: 2,
-		// 	time: new Date().toISOString(),
-		// 	location: {
-		// 		latitude: 1.23,
-		// 		longitude: 23.44,
-		// 		coordinates: [23.44, 1.23]
-		// 	},
-		// }],
+		'array': [1, 2, 3, {
+			name: 'Item ' + 2,
+			id: String(2),
+			index: 2,
+			time: new Date().toISOString(),
+			location: {
+				latitude: 1.23,
+				longitude: 23.44,
+				coordinates: [23.44, 1.23]
+			},
+		}],
 		'boolean': true,
 		'color': '#82b92c',
 		'null': null,
 		'number': 123,
-		// 'object': {'a': 'b', 'c': 'd', nested: {
-		// 	name: 'Item ' + 2,
-		// 	id: String(2),
-		// 	index: 2,
-		// 	time: new Date().toISOString(),
-		// 	location: {
-		// 		latitude: 1.23,
-		// 		longitude: 23.44,
-		// 		coordinates: [23.44, 1.23]
-		// 	},
-		// }},
-		// 'string': 'Hello World'
+		'object': {'a': 'b', 'c': 'd', nested: {
+			name: 'Item ' + 2,
+			id: String(2),
+			index: 2,
+			time: new Date().toISOString(),
+			location: {
+				latitude: 1.23,
+				longitude: 23.44,
+				coordinates: [23.44, 1.23]
+			},
+		}},
+		'string': 'Hello World'
 	}
 
 	let uniDirectionalValue = 'test uni directional flow in Svelte';
