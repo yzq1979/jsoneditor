@@ -108,18 +108,31 @@
     font-family: $font-family;
     font-size: $font-size;
     color: $black;
-    line-height: $line-height;
+
+    .header {
+      position: relative;
+    }
 
     .header,
     .contents {
       display: inline-flex;
       flex-direction: row;
       align-items: center;
+      line-height: $line-height;
+    }
+
+    .contents {
+      padding-left: $line-height ; // must be the same as the width of the expand button
+    }
+
+    .footer {
+      padding-left: $line-height + $input-padding; // must be the same as the width of the expand button
     }
   }
 
   .expand {
     position: relative;
+    top: 2px;
     width: $line-height;
     height: $line-height;
     padding: 0;
@@ -164,9 +177,15 @@
     color: white;
     background: $light-gray;
     border-radius: 2px;
-    padding: 2px 4px;
+    padding: 1px 4px;
     margin: 0 5px;
     cursor: pointer;
+    position: relative;
+    top: 1px;
+
+    &:hover {
+      background: lighten($light-gray, 5%);
+    }
   }
 
   .items,
@@ -253,14 +272,14 @@
         >
           {escapedKey}
         </div>
-        <span class="separator">:</span>
+        <div class="separator">:</div>
       {/if}
       {#if expanded}
-        <span class="delimiter">[</span>
+        <div class="delimiter">[</div>
       {:else}
-        <span class="delimiter">[</span>
+        <div class="delimiter">[</div>
         <button class="tag" on:click={() => expanded = true}>{value.length} items</button>
-        <span class="delimiter">]</span>
+        <div class="delimiter">]</div>
       {/if}
     </div>
     {#if expanded}
