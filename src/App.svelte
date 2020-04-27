@@ -181,11 +181,11 @@
 	/>
 </div>
 
-<textarea
-	class='code'
-	value={JSON.stringify(json, null, 2)}
-	on:input={handleInputTextArea}
-/>
+<!--<textarea-->
+<!--	class='code'-->
+<!--	value={JSON.stringify(json, null, 2)}-->
+<!--	on:input={handleInputTextArea}-->
+<!--/>-->
 
 <p>
 	<button on:click={handleLoadLargeJson}>load large json</button>

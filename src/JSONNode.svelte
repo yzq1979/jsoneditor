@@ -14,7 +14,7 @@
   export let onChangeValue
   export let expanded = false
 
-  const DEFAULT_LIMIT = 10000
+  const DEFAULT_LIMIT = 100
   const escapeUnicode = false // TODO: pass via options
 
   // create lazy, memoized updateProps function
@@ -109,6 +109,13 @@
     font-size: $font-size;
     color: $black;
     line-height: $line-height;
+
+    .header,
+    .contents {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+    }
   }
 
   .expand {
@@ -126,14 +133,15 @@
 
   .key,
   .value {
+    display: flex;
+
+    line-height: $line-height;
     min-width: 16px;
     word-break: normal;
     padding: 0 $input-padding;
     outline: none;
-
     border-radius: 1px;
-    // flex: 1 1 auto !important;
-    display: inline; // FIXME: use flex?
+    vertical-align: middle;
 
     &:focus {
       box-shadow: 0 0 3px 1px #008fd5;
@@ -144,7 +152,8 @@
   // FIXME: there is whitespace added around the separator in the HTML
   .separator,
   .delimiter {
-    display: inline;
+    display: flex;
+    vertical-align: middle;
     color: $gray;
   }
 
@@ -155,9 +164,8 @@
     color: white;
     background: $light-gray;
     border-radius: 2px;
-    padding: 0 4px;
-    margin-left: $input-padding;
-    margin-top: 2px;
+    padding: 2px 4px;
+    margin: 0 5px;
     cursor: pointer;
   }
 
@@ -298,7 +306,7 @@
       {#if expanded}
         <span class="delimiter">&#123;</span>
       {:else}
-        <span class="delimiter">&#123;</span>
+        <span class="delimiter"> &#123;</span>
         <button class="tag" on:click={() => expanded = true}>{props.length} props</button>
         <span class="delimiter">}</span>
       {/if}
@@ -320,22 +328,24 @@
       </div>
     {/if}
   {:else}
-    {#if typeof key === 'string'}
+    <div class="contents">
+      {#if typeof key === 'string'}
+        <div
+          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+          contenteditable="true"
+          on:input={handleKeyInput}
+        >
+          {escapedKey}
+        </div>
+        <span class="separator">:</span>
+      {/if}
       <div
-        class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+        class={valueClass}
         contenteditable="true"
-        on:input={handleKeyInput}
+        on:input={handleValueInput}
       >
-        {escapedKey}
+        {escapedValue}
       </div>
-      <span class="separator">:</span>
-    {/if}
-    <div
-      class={valueClass}
-      contenteditable="true"
-      on:input={handleValueInput}
-    >
-      {escapedValue}
     </div>
   {/if}
 </div>
