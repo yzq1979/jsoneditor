@@ -59,15 +59,12 @@
 
 	$: formattedName = `"${name}"`
 
-	$: console.log('json.number', json.number)
-
 	function loadLargeJson () {
 		const count = 500
 
 		console.log('create large json', { count })
 		console.time('create large json')
-		const largeJson = {
-		}
+		const largeJson = {}
 		largeJson.numbers = []
 		largeJson.array = []
 		for (let i = 0; i < count; i++) {
@@ -179,15 +176,16 @@
 			value={json}
 			searchResult={searchResult}
 			expanded={true}
+			onChangeKey={handleChangeKey}
 			onChangeValue={handleChangeValue}
 	/>
 </div>
 
-<!-- <textarea 
-	class='code' 
+<textarea
+	class='code'
 	value={JSON.stringify(json, null, 2)}
 	on:input={handleInputTextArea}
-/> -->
+/>
 
 <p>
 	<button on:click={handleLoadLargeJson}>load large json</button>

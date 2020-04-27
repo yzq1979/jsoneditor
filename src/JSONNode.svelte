@@ -5,6 +5,8 @@
   import classnames from 'classnames'
   import { isUrl, valueType } from './utils/typeUtils'
   import { escapeHTML } from './utils/stringUtils'
+  import uniqueId from 'lodash/uniqueId.js'
+  import remove from 'lodash/remove.js'
 
   export let key = 'root'
   export let value
@@ -14,15 +16,33 @@
   export let expanded = true
 
   const DEFAULT_LIMIT = 10000
+  const escapeUnicode = false // TODO: pass via options
 
   let limit = DEFAULT_LIMIT
 
   $: type = valueType (value)
 
+
+  function getOrCreateId (childKey) {
+    if (ids === undefined) {
+      ids = {}
+    }
+
+    if (ids[childKey] === undefined) {
+      ids[childKey] = uniqueId()
+    }
+
+    return ids[childKey]
+  }
+
   // FIXME: this should not be needed, use Svelte notation for looping over an object
+  let ids = undefined
   $: props = type === 'object'
-    ? Object.keys(value).map(prop => {
-      return { key: prop, value: value[prop] }
+    ? Object.keys(value).map(childKey => {
+      return {
+        id: getOrCreateId(childKey),
+        key: childKey
+      }
     })
     : undefined
 
@@ -32,7 +52,6 @@
     ? limited ? value.slice(0, limit) : value
     : undefined
 
-  const escapeUnicode = false // TODO: pass via options
   $: escapedKey = escapeHTML(key, escapeUnicode)
   $: escapedValue = escapeHTML(value, escapeUnicode)
 
@@ -60,11 +79,20 @@
 
   function handleChangeKey (newChildKey, oldChildKey) {
     if (type === 'object') {
-      const updatedValue = {
-        ...value,
-        [newChildKey]: value[oldChildKey]
+      const updatedValue = {}
+      Object.keys(value).forEach(childKey => {
+        if (childKey === oldChildKey) {
+          updatedValue[newChildKey] = value[childKey]
+        } else {
+          updatedValue[childKey] = value[childKey]
+        }
+      })
+
+      if (ids !== undefined) {
+        ids[newChildKey] = ids[oldChildKey]
+        delete ids[oldChildKey]
       }
-      delete updatedValue[oldChildKey]
+
       onChangeValue(updatedValue, key)
     }
   }
@@ -72,14 +100,12 @@
   function handleChangeValue (childValue, childKey) {
     // FIXME: use an immutability setIn function here
     if (type === 'array') {
-      const updatedValue = value.slice(0) // copy the array
+      const updatedValue = [...value]
       updatedValue[childKey] = childValue
       onChangeValue(updatedValue, key)
     } else if (type === 'object') {
-      const updatedValue = {
-        ...value,
-        [childKey]: childValue
-      }
+      const updatedValue = { ...value }
+      updatedValue[childKey] = childValue
       onChangeValue(updatedValue, key)
     }
   }
@@ -131,6 +157,7 @@
 
   // FIXME: there is whitespace added around the separator in the HTML
   .separator {
+    display: inline;
     color: $gray;
   }
 
@@ -242,10 +269,10 @@
   {:else if type === 'object'}
     {#if expanded}
       <div class="props">
-        {#each props as prop (prop.key)}
+        {#each props as prop (prop.id)}
           <svelte:self
             key={prop.key}
-            value={prop.value}
+            value={value[prop.key]}
             searchResult={searchResult ? searchResult[prop.key] : undefined}
             onChangeKey={handleChangeKey}
             onChangeValue={handleChangeValue}
