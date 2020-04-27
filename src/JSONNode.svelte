@@ -40,9 +40,10 @@
 
   $: escapedKey = escapeHTML(key, escapeUnicode)
   $: escapedValue = escapeHTML(value, escapeUnicode)
+  $: valueIsUrl = isUrl(value)
 
   $: valueClass = classnames('value', type, {
-    url: isUrl(value),
+    url: valueIsUrl,
     empty: escapedValue.length === 0,
     search: searchResult
       ? !!searchResult[SEARCH_VALUE]
@@ -62,6 +63,24 @@
     const valueText = unescapeHTML(event.target.innerText)
     const newValue = stringConvert(valueText) // TODO: implement support for type "string"
     onChangeValue(newValue, key)
+  }
+
+  function handleValueClick (event) {
+    if (valueIsUrl && event.ctrlKey) {
+      event.preventDefault()
+      event.stopPropagation()
+
+      window.open(value, '_blank')
+    }
+  }
+
+  function handleValueKeyDown (event) {
+    if (event.ctrlKey && event.key === 'Enter') {
+      event.preventDefault()
+      event.stopPropagation()
+
+      window.open(value, '_blank')
+    }
   }
 
   function handleChangeKey (newChildKey, oldChildKey) {
@@ -364,6 +383,9 @@
         class={valueClass}
         contenteditable="true"
         on:input={handleValueInput}
+        on:click={handleValueClick}
+        on:keydown={handleValueKeyDown}
+        title={valueIsUrl ? 'Ctrl+Click or Ctrl+Enter to open url in new window' : null}
       >
         {escapedValue}
       </div>

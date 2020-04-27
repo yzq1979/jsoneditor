@@ -34,7 +34,8 @@
 				coordinates: [23.44, 1.23]
 			},
 		}},
-		'string': 'Hello World'
+		'string': 'Hello World',
+		'url': 'https://jsoneditoronline.org'
 	}
 
 	let uniDirectionalValue = 'test uni directional flow in Svelte';
