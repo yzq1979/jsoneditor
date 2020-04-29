@@ -144,6 +144,7 @@
 
     .contents {
       padding-left: $line-height ; // must be the same as the width of the expand button
+      padding-right: 5px;
     }
 
     .footer {
@@ -289,6 +290,7 @@
         <div
           class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
           contenteditable="true"
+          spellcheck="false"
           on:input={handleKeyInput}
         >
           {escapedKey}
@@ -337,6 +339,7 @@
         <div
           class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
           contenteditable="true"
+          spellcheck="false"
           on:input={handleKeyInput}
         >
           {escapedKey}
@@ -373,6 +376,7 @@
         <div
           class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
           contenteditable="true"
+          spellcheck="false"
           on:input={handleKeyInput}
         >
           {escapedKey}
@@ -382,6 +386,7 @@
       <div
         class={valueClass}
         contenteditable="true"
+        spellcheck="false"
         on:input={handleValueInput}
         on:click={handleValueClick}
         on:keydown={handleValueKeyDown}
