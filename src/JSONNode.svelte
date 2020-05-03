@@ -23,7 +23,7 @@
   $: type = valueType (value)
 
   let prevValue = undefined
-  let props = updateProps(value)
+  let props = undefined
 
   $: if (value !== prevValue) {
     prevValue = value
