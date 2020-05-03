@@ -5,7 +5,7 @@
   import classnames from 'classnames'
   import { isUrl, stringConvert, valueType } from './utils/typeUtils'
   import { escapeHTML } from './utils/stringUtils.js'
-  import { createUpdateProps } from './utils/updateProps.js'
+  import { updateProps } from './utils/updateProps.js'
   import { unescapeHTML } from './utils/stringUtils'
 
   export let key = undefined
@@ -18,19 +18,18 @@
   const DEFAULT_LIMIT = 100
   const escapeUnicode = false // TODO: pass via options
 
-  // create lazy, memoized updateProps function
-  let updateProps = function lazyUpdateProps (value) {
-    updateProps = createUpdateProps()
-    return updateProps(value)
-  }
-
   let limit = DEFAULT_LIMIT
 
   $: type = valueType (value)
 
-  $: props = type === 'object'
-    ? updateProps(value)
-    : undefined
+  let prevValue = undefined
+  let props = updateProps(value)
+
+  $: if (value !== prevValue) {
+    prevValue = value
+
+    props = updateProps(value, props)
+  }
 
   $: limited = type === 'array' && value.length > limit
 
@@ -96,8 +95,15 @@
 
       const index = props.findIndex(item => item.key === oldChildKey)
       if (index !== -1) {
-        // FIXME: make immutable (not possible as long as prevProps is stored in updateProps
-        props[index].key = newChildKey
+        // we use splice here to replace the old key with the new new one 
+        // already without Svelte noticing it (no assignment), so we prevent
+        // a needless render. We keep the same id, so the child HTML will be
+        // reused
+        // TODO: is there a better way to do this?
+        props.splice(index, 1, {
+          id: props[index].id,
+          key: newChildKey
+        })
       }
 
       onChangeValue(updatedValue, key)

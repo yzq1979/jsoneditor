@@ -7,7 +7,7 @@
 
 	export let searchText = ''
 
-	let json = {
+	export let json = {
 		'array': [1, 2, 3, {
 			name: 'Item ' + 2,
 			id: String(2),
@@ -102,7 +102,7 @@
 	}
 
 	function handleChangeValue (value, key) {
-		console.log('App handleChangeValue')
+		console.log('App handleChangeValue', value, key)
 		json = value
 	}
 
