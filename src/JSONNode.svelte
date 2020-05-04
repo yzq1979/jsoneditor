@@ -128,6 +128,128 @@
   }
 </script>
 
+<div class='json-node'>
+  {#if type === 'array'}
+    <div class='header'>
+      <button class='expand' on:click={toggle}>
+        {#if expanded}
+          <Icon data={faCaretDown} />
+        {:else}
+          <Icon data={faCaretRight} />
+        {/if}
+      </button>
+      {#if typeof key === 'string'}
+        <div
+          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+          contenteditable="true"
+          spellcheck="false"
+          on:input={handleKeyInput}
+        >
+          {escapedKey}
+        </div>
+        <div class="separator">:</div>
+      {/if}
+      {#if expanded}
+        <div class="delimiter">[</div>
+      {:else}
+        <div class="delimiter">[</div>
+        <button class="tag" on:click={() => expanded = true}>{value.length} items</button>
+        <div class="delimiter">]</div>
+      {/if}
+    </div>
+    {#if expanded}
+      <div class="items">
+        {#each items as item, index (index)}
+          <svelte:self
+            key={index}
+            value={item}
+            searchResult={searchResult ? searchResult[index] : undefined}
+            onChangeKey={handleChangeKey}
+            onChangeValue={handleChangeValue}
+          />
+        {/each}
+        {#if limited}
+          <div>
+            (showing {limit} of {value.length} items <button on:click={handleShowAll}>show all</button>)
+          </div>
+        {/if}
+      </div>
+      <div class="footer">
+        <span class="delimiter">]</span>
+      </div>
+    {/if}
+  {:else if type === 'object'}
+    <div class='header'>
+      <button class='expand' on:click={toggle}>
+        {#if expanded}
+          <Icon data={faCaretDown} />
+        {:else}
+          <Icon data={faCaretRight} />
+        {/if}
+      </button>
+      {#if typeof key === 'string'}
+        <div
+          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+          contenteditable="true"
+          spellcheck="false"
+          on:input={handleKeyInput}
+        >
+          {escapedKey}
+        </div>
+        <span class="separator">:</span>
+      {/if}
+      {#if expanded}
+        <span class="delimiter">&#123;</span>
+      {:else}
+        <span class="delimiter"> &#123;</span>
+        <button class="tag" on:click={() => expanded = true}>{props.length} props</button>
+        <span class="delimiter">}</span>
+      {/if}
+    </div>
+    {#if expanded}
+      <div class="props">
+        {#each props as prop (prop.id)}
+          <svelte:self
+            key={prop.key}
+            value={value[prop.key]}
+            searchResult={searchResult ? searchResult[prop.key] : undefined}
+            onChangeKey={handleChangeKey}
+            onChangeValue={handleChangeValue}
+          />
+        {/each}
+      </div>
+      <div class="footer">
+        <span class="delimiter">}</span>
+      </div>
+    {/if}
+  {:else}
+    <div class="contents">
+      {#if typeof key === 'string'}
+        <div
+          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+          contenteditable="true"
+          spellcheck="false"
+          on:input={handleKeyInput}
+        >
+          {escapedKey}
+        </div>
+        <span class="separator">:</span>
+      {/if}
+      <div
+        class={valueClass}
+        contenteditable="true"
+        spellcheck="false"
+        on:input={handleValueInput}
+        on:click={handleValueClick}
+        on:keydown={handleValueKeyDown}
+        title={valueIsUrl ? 'Ctrl+Click or Ctrl+Enter to open url in new window' : null}
+      >
+        {escapedValue}
+      </div>
+    </div>
+  {/if}
+</div>
+
 <style type="text/scss">
   @import './styles.scss';
 
@@ -281,125 +403,3 @@
     background-color: $highlight-color;
   }
 </style>
-
-<div class='json-node'>
-  {#if type === 'array'}
-    <div class='header'>
-      <button class='expand' on:click={toggle}>
-        {#if expanded}
-          <Icon data={faCaretDown} />
-        {:else}
-          <Icon data={faCaretRight} />
-        {/if}
-      </button>
-      {#if typeof key === 'string'}
-        <div
-          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
-          contenteditable="true"
-          spellcheck="false"
-          on:input={handleKeyInput}
-        >
-          {escapedKey}
-        </div>
-        <div class="separator">:</div>
-      {/if}
-      {#if expanded}
-        <div class="delimiter">[</div>
-      {:else}
-        <div class="delimiter">[</div>
-        <button class="tag" on:click={() => expanded = true}>{value.length} items</button>
-        <div class="delimiter">]</div>
-      {/if}
-    </div>
-    {#if expanded}
-      <div class="items">
-        {#each items as item, index (index)}
-          <svelte:self
-            key={index}
-            value={item}
-            searchResult={searchResult ? searchResult[index] : undefined}
-            onChangeKey={handleChangeKey}
-            onChangeValue={handleChangeValue}
-          />
-        {/each}
-        {#if limited}
-          <div>
-            (showing {limit} of {value.length} items <button on:click={handleShowAll}>show all</button>)
-          </div>
-        {/if}
-      </div>
-      <div class="footer">
-        <span class="delimiter">]</span>
-      </div>
-    {/if}
-  {:else if type === 'object'}
-    <div class='header'>
-      <button class='expand' on:click={toggle}>
-        {#if expanded}
-          <Icon data={faCaretDown} />
-        {:else}
-          <Icon data={faCaretRight} />
-        {/if}
-      </button>
-      {#if typeof key === 'string'}
-        <div
-          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
-          contenteditable="true"
-          spellcheck="false"
-          on:input={handleKeyInput}
-        >
-          {escapedKey}
-        </div>
-        <span class="separator">:</span>
-      {/if}
-      {#if expanded}
-        <span class="delimiter">&#123;</span>
-      {:else}
-        <span class="delimiter"> &#123;</span>
-        <button class="tag" on:click={() => expanded = true}>{props.length} props</button>
-        <span class="delimiter">}</span>
-      {/if}
-    </div>
-    {#if expanded}
-      <div class="props">
-        {#each props as prop (prop.id)}
-          <svelte:self
-            key={prop.key}
-            value={value[prop.key]}
-            searchResult={searchResult ? searchResult[prop.key] : undefined}
-            onChangeKey={handleChangeKey}
-            onChangeValue={handleChangeValue}
-          />
-        {/each}
-      </div>
-      <div class="footer">
-        <span class="delimiter">}</span>
-      </div>
-    {/if}
-  {:else}
-    <div class="contents">
-      {#if typeof key === 'string'}
-        <div
-          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
-          contenteditable="true"
-          spellcheck="false"
-          on:input={handleKeyInput}
-        >
-          {escapedKey}
-        </div>
-        <span class="separator">:</span>
-      {/if}
-      <div
-        class={valueClass}
-        contenteditable="true"
-        spellcheck="false"
-        on:input={handleValueInput}
-        on:click={handleValueClick}
-        on:keydown={handleValueKeyDown}
-        title={valueIsUrl ? 'Ctrl+Click or Ctrl+Enter to open url in new window' : null}
-      >
-        {escapedValue}
-      </div>
-    </div>
-  {/if}
-</div>
