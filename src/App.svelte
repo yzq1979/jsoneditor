@@ -48,6 +48,18 @@
   beforeUpdate(() => console.time('render app'))
   afterUpdate(() => console.timeEnd('render app'))
 
+  function handleChangeFiles (event) {
+    console.log('handleChangeFiles', event.target.files)
+
+    const reader = new FileReader()
+    const file = event.target.files[0]
+    reader.onload = function (event) {
+      const text = event.target.result
+      json = JSON.parse(text)
+    }
+    reader.readAsText(file)
+  }
+
   function loadLargeJson() {
     const count = 500
 
@@ -93,7 +105,7 @@
   }
 
   function handleChange (json) {
-    console.log('App handleChange', json)
+    // console.log('App handleChange', json)
   }
 
   setTimeout(() => {
@@ -112,6 +124,7 @@
 <p>
 	<button on:click={handleLoadLargeJson}>load large json</button>
 	<button on:click={handleClearJson}>clear json</button>
+  <input type="file" on:change={handleChangeFiles}>
 </p>
 
 <style>

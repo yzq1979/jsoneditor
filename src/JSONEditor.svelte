@@ -32,12 +32,12 @@
 	$: onChange(json)
 
 	function handleChangeKey (key, oldKey) {
-		console.log('handleChangeKey', { key, oldKey })
+		// console.log('handleChangeKey', { key, oldKey })
 		// TODO: this should not happen?
 	}
 
 	function handleChangeValue (value, key) {
-		console.log('handleChangeValue', value, key)
+		// console.log('handleChangeValue', value, key)
 		json = value
 	}
 
