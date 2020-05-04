@@ -55,13 +55,15 @@
 	<div class="menu">
 		<Icon data={faSearch} /> Search: <input class="search-input" bind:value={searchText} />
 	</div>
-	<Node
-    value={json}
-    searchResult={searchResult}
-    expanded={true}
-    onChangeKey={handleChangeKey}
-    onChangeValue={handleChangeValue}
-	/>
+  <div class="contents">
+    <Node
+      value={json}
+      searchResult={searchResult}
+      expanded={true}
+      onChangeKey={handleChangeKey}
+      onChangeValue={handleChangeValue}
+    />
+  </div>
 </div>
 
 <style type="text/scss">
@@ -71,7 +73,9 @@
 		border: 1px solid gray;
 		width: 100%;
 		height: 100%;
-		min-height: 150px;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
 
 		.menu {
       font-family: $font-family-menu;
@@ -87,6 +91,11 @@
         font-size: $font-size;
         padding: $input-padding;
       }
-		}
+    }
+    
+    .contents {
+      flex: 1;
+      overflow: auto;
+    }
 	}
 </style>
