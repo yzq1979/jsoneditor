@@ -266,7 +266,6 @@
     .contents {
       display: inline-flex;
       flex-direction: row;
-      align-items: center;
       line-height: $line-height;
     }
 
