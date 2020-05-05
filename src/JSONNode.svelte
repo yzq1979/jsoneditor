@@ -264,8 +264,9 @@
 
     .header,
     .contents {
-      display: inline-flex;
+      display: table;
       flex-direction: row;
+
       line-height: $line-height;
     }
 
@@ -295,7 +296,7 @@
 
   .key,
   .value {
-    display: flex;
+    display: table-cell;
 
     line-height: $line-height;
     min-width: 16px;
@@ -303,7 +304,7 @@
     padding: 0 $input-padding;
     outline: none;
     border-radius: 1px;
-    vertical-align: middle;
+    vertical-align: top;
 
     &:focus {
       box-shadow: 0 0 3px 1px #008fd5;
@@ -311,15 +312,16 @@
     }
   }
 
-  // FIXME: there is whitespace added around the separator in the HTML
   .separator,
   .delimiter {
-    display: flex;
-    vertical-align: middle;
+    display: table-cell;
+    vertical-align: top;
     color: $gray;
   }
 
   .tag {
+    display: table-cell;
+    vertical-align: top;
     border: none;
     font-size: $font-size-small;
     font-family: $font-family-menu;
