@@ -7,6 +7,7 @@
   import { escapeHTML } from './utils/stringUtils.js'
   import { updateProps } from './utils/updateProps.js'
   import { unescapeHTML } from './utils/stringUtils'
+  import { getInnerText } from './utils/domUtils'
 
   export let key = undefined
   export let value
@@ -41,6 +42,13 @@
   $: escapedValue = escapeHTML(value, escapeUnicode)
   $: valueIsUrl = isUrl(value)
 
+  $: keyClass = classnames('key', {
+    empty: escapedKey.length === 0,
+    search: searchResult 
+      ? !!searchResult[SEARCH_PROPERTY]
+      : false
+  })
+
   $: valueClass = classnames('value', type, {
     url: valueIsUrl,
     empty: escapedValue.length === 0,
@@ -54,12 +62,12 @@
   }
 
   function handleKeyInput (event) {
-    const newKey = unescapeHTML(event.target.innerText)
+    const newKey = unescapeHTML(getInnerText(event.target))
     onChangeKey(newKey, key)
   }
 
   function handleValueInput (event) {
-    const valueText = unescapeHTML(event.target.innerText)
+    const valueText = unescapeHTML(getInnerText(event.target))
     const newValue = stringConvert(valueText) // TODO: implement support for type "string"
     onChangeValue(newValue, key)
   }
@@ -140,7 +148,7 @@
       </button>
       {#if typeof key === 'string'}
         <div
-          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+          class={keyClass}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -189,7 +197,7 @@
       </button>
       {#if typeof key === 'string'}
         <div
-          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+          class={keyClass}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -226,7 +234,7 @@
     <div class="contents">
       {#if typeof key === 'string'}
         <div
-          class="key {searchResult && searchResult[SEARCH_PROPERTY] ? 'search' : ''}"
+          class={keyClass}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -268,6 +276,10 @@
       flex-direction: row;
 
       line-height: $line-height;
+
+      > * {
+        display: table-cell;
+      }
     }
 
     .contents {
@@ -296,8 +308,6 @@
 
   .key,
   .value {
-    display: table-cell;
-
     line-height: $line-height;
     min-width: 16px;
     word-break: normal;
@@ -314,13 +324,11 @@
 
   .separator,
   .delimiter {
-    display: table-cell;
     vertical-align: top;
     color: $gray;
   }
 
   .tag {
-    display: table-cell;
     vertical-align: top;
     border: none;
     font-size: $font-size-small;
@@ -388,10 +396,9 @@
   div.empty::after {
     pointer-events: none;
     color: lightgray;
-    font-size: 8pt;
   }
 
-  div.property.empty::after {
+  div.key.empty::after {
     content: 'key';
   }
 
