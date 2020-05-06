@@ -62,7 +62,7 @@
       : false
   })
 
-  $: valueClass = getValueClass(value)
+  $: valueClass = getValueClass(value, searchResult)
 
   $: if (domKey) {
     if (document.activeElement !== domKey || escapedKey === '') {
@@ -82,7 +82,7 @@
     }
   }
 
-  function getValueClass (value) {
+  function getValueClass (value, searchResult) {
     const type = valueType (value)
 
     return classnames('value', type, {
