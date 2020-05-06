@@ -63,7 +63,6 @@
       searchResult={searchResult}
       expanded={true}
       onChangeKey={handleChangeKey}
-      onChangeValue={handleChangeValue}
       onChange={handleChange}
 			getParentPath={getPath}
     />
