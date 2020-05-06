@@ -13,7 +13,7 @@ export default {
 		sourcemap: true,
 		format: 'esm', // esm, umd, cjs, iife
 		name: 'JSONEditor',
-		file: 'public/build/jsoneditor.module.js'
+		file: 'public/dist/es/jsoneditor.js'
 	},
 	plugins: [
 		svelte({
