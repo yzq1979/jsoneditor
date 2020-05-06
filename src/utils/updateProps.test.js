@@ -1,20 +1,19 @@
-import { createUpdateProps } from './updateProps.js'
+import { updateProps } from './updateProps.js'
 import { expect } from './testUtils.js' // FIXME: replace jest with mocha tests, or move to jest
 
 const test = it // TODO: replace jest with mocha tests, or move to jest
 
 test('updateProps (1)', () => {
-  const updateProps = createUpdateProps()
+  const props1 = updateProps({b: 2})
+  expect(props1.map(item => item.key)).toEqual(['b'])
 
-  expect(updateProps({b: 2}).map(item => item.key)).toEqual(['b'])
-
-  const result2 = updateProps({a: 1, b: 2})
-  expect(result2.map(item => item.key)).toEqual(['b', 'a'])
-  expect(result2[0].id).toEqual('1')
+  const props2 = updateProps({a: 1, b: 2}, props1)
+  expect(props2.map(item => item.key)).toEqual(['b', 'a'])
+  expect(props2[0].id).toEqual('1')
 })
 
 test('updateProps (2)', () => {
-  const updateProps = createUpdateProps()
-  const result1 = updateProps({a: 1, b: 2})
-  expect(updateProps({a: 1, b: 2})).toEqual(result1)
+  const props1 = updateProps({a: 1, b: 2})
+  const props2 = updateProps({a: 1, b: 2}, props1)
+  expect(props2).toEqual(props1)
 })
