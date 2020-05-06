@@ -69,36 +69,4 @@
   </div>
 </div>
 
-<style type="text/scss">
-	@import './styles.scss';
-
-	.jsoneditor {
-		border: 1px solid gray;
-		width: 100%;
-		height: 100%;
-    min-height: 150px;
-    display: flex;
-    flex-direction: column;
-
-		.menu {
-      font-family: $font-family-menu;
-      font-size: $font-size;
-			padding: $menu-padding;
-			background: $theme-color;
-      color: $white;
-      text-align: right;
-      
-      .search-input {
-        border: none;
-        font-family: $font-family-menu;
-        font-size: $font-size;
-        padding: $input-padding;
-      }
-    }
-    
-    .contents {
-      flex: 1;
-      overflow: auto;
-    }
-	}
-</style>
+<style type="text/scss" src="JSONEditor.sass"></style>
