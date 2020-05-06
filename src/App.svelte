@@ -1,6 +1,5 @@
 <script>
   import JSONEditor from './JSONEditor.svelte'
-  import { beforeUpdate, afterUpdate } from 'svelte'
 
   let json = {
     'array': [1, 2, 3, {
@@ -46,9 +45,6 @@
   }
 
   console.time('load editor')
-
-  beforeUpdate(() => console.time('render app'))
-  afterUpdate(() => console.timeEnd('render app'))
 
   function handleChangeFiles (event) {
     console.log('handleChangeFiles', event.target.files)

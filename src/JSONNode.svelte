@@ -8,13 +8,23 @@
   import { updateProps } from './utils/updateProps.js'
   import { unescapeHTML } from './utils/stringUtils'
   import { getInnerText } from './utils/domUtils'
+  import { compileJSONPointer } from './utils/jsonPointer'
 
-  export let key = undefined
+  export let key = undefined // only applicable for object properties
+  export let index = undefined // only applicable for array items
   export let value
   export let searchResult
+  export let onChange
   export let onChangeKey
-  export let onChangeValue
   export let expanded = false
+
+  export let getParentPath
+
+  function getPath () {
+    return key !== undefined
+      ? getParentPath().concat(key)
+      : []
+  }
 
   const DEFAULT_LIMIT = 100
   const escapeUnicode = false // TODO: pass via options
@@ -90,7 +100,17 @@
 
   function handleKeyInput (event) {
     const newKey = unescapeHTML(getInnerText(event.target))
+  
+    // TODO: replace the onChangeKey callback with gobally managed JSONNode id's, 
+    //  which are kept in sync with the json itself using JSONPatch
     onChangeKey(newKey, key)
+
+    const parentPath = getParentPath()
+    onChange([{
+      op: 'move',
+      from: compileJSONPointer(parentPath.concat(key)),
+      path: compileJSONPointer(parentPath.concat(newKey))
+    }])
   }
 
   function handleKeyBlur () {
@@ -101,7 +121,12 @@
   function handleValueInput (event) {
     const valueText = unescapeHTML(getInnerText(event.target))
     const newValue = stringConvert(valueText) // TODO: implement support for type "string"
-    onChangeValue(newValue, key)
+
+    onChange([{
+      op: 'replace',
+      path: compileJSONPointer(getPath()),
+      value: newValue
+    }])
   }
 
   function handleValueBlur () {
@@ -129,15 +154,6 @@
 
   function handleChangeKey (newChildKey, oldChildKey) {
     if (type === 'object') {
-      const updatedValue = {}
-      Object.keys(value).forEach(childKey => {
-        if (childKey === oldChildKey) {
-          updatedValue[newChildKey] = value[childKey]
-        } else {
-          updatedValue[childKey] = value[childKey]
-        }
-      })
-
       const index = props.findIndex(item => item.key === oldChildKey)
       if (index !== -1) {
         // we use splice here to replace the old key with the new new one 
@@ -150,21 +166,6 @@
           key: newChildKey
         })
       }
-
-      onChangeValue(updatedValue, key)
-    }
-  }
-
-  function handleChangeValue (childValue, childKey) {
-    // FIXME: use an immutability setIn function here
-    if (type === 'array') {
-      const updatedValue = [...value]
-      updatedValue[childKey] = childValue
-      onChangeValue(updatedValue, key)
-    } else if (type === 'object') {
-      const updatedValue = { ...value }
-      updatedValue[childKey] = childValue
-      onChangeValue(updatedValue, key)
     }
   }
 
@@ -210,7 +211,8 @@
             value={item}
             searchResult={searchResult ? searchResult[index] : undefined}
             onChangeKey={handleChangeKey}
-            onChangeValue={handleChangeValue}
+            onChange={onChange}
+            getParentPath={getPath}
           />
         {/each}
         {#if limited}
@@ -259,7 +261,8 @@
             value={value[prop.key]}
             searchResult={searchResult ? searchResult[prop.key] : undefined}
             onChangeKey={handleChangeKey}
-            onChangeValue={handleChangeValue}
+            onChange={onChange}
+            getParentPath={getPath}
           />
         {/each}
       </div>

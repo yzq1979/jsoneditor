@@ -3,7 +3,7 @@
 	import { faSearch  } from '@fortawesome/free-solid-svg-icons'
 	import Node from './JSONNode.svelte'
 	import { search } from './search'
-	import { beforeUpdate, afterUpdate } from 'svelte'
+	import { immutableJSONPatch } from './utils/immutableJSONPatch'
 
 	export let json = {}
 	export let onChange = () => {}
@@ -17,8 +17,9 @@
 		json = newJson
 	}
 
-	beforeUpdate(() => console.time('render JSONEditor'))
-	afterUpdate(() => console.timeEnd('render JSONEditor'))
+	function getPath () {
+		return []
+	}
 
 	function doSearch (json, searchText) {
 		console.time('search')
@@ -38,17 +39,18 @@
 
 	function handleChangeValue (value, key) {
 		// console.log('handleChangeValue', value, key)
-		json = value
+		// json = value
 	}
-
-	function handleInputTextArea (event) {
-		console.log('on:input')
-		try {
-			json = JSON.parse(event.target.value)
-		} catch (err) {
-			console.error(err)
-		}
-	}
+	
+	/**
+	 * @param {JSONPatchDocument} operations
+	 */ 
+  function handleChange (operations) {
+		console.log('handleChange', operations)
+		
+		// TODO: store changes in history
+		json = immutableJSONPatch(json, operations).json
+  }
 </script>
 
 <div class="jsoneditor">
@@ -62,6 +64,8 @@
       expanded={true}
       onChangeKey={handleChangeKey}
       onChangeValue={handleChangeValue}
+      onChange={handleChange}
+			getParentPath={getPath}
     />
   </div>
 </div>
