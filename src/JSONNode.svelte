@@ -21,6 +21,9 @@
 
   let limit = DEFAULT_LIMIT
 
+  let domKey 
+  let domValue
+
   $: type = valueType (value)
 
   let prevValue = undefined
@@ -49,13 +52,37 @@
       : false
   })
 
-  $: valueClass = classnames('value', type, {
-    url: valueIsUrl,
-    empty: escapedValue.length === 0,
-    search: searchResult
-      ? !!searchResult[SEARCH_VALUE]
-      : false
-  })
+  $: valueClass = getValueClass(value)
+
+  $: if (domKey) {
+    if (document.activeElement !== domKey || escapedKey === '') {
+      // synchronize the innerText of the editable div with the escaped value,
+      // but only when the domValue does not have focus else we will ruin 
+      // the cursor position.
+      domKey.innerText = escapedKey
+    }
+  }
+
+  $: if (domValue) {
+    if (document.activeElement !== domValue || escapedValue === '') {
+      // synchronize the innerText of the editable div with the escaped value,
+      // but only when the domValue does not have focus else we will ruin 
+      // the cursor position.
+      domValue.innerText = escapedValue
+    }
+  }
+
+  function getValueClass (value) {
+    const type = valueType (value)
+
+    return classnames('value', type, {
+      url: isUrl(value),
+      empty: escapedValue.length === 0,
+      search: searchResult
+        ? !!searchResult[SEARCH_VALUE]
+        : false
+    })
+  }
 
   function toggle () {
     expanded = !expanded
@@ -66,10 +93,20 @@
     onChangeKey(newKey, key)
   }
 
+  function handleKeyBlur () {
+    // make sure differences in escaped text like with new lines is updated
+    domKey.innerText = escapedValue
+  }
+
   function handleValueInput (event) {
     const valueText = unescapeHTML(getInnerText(event.target))
     const newValue = stringConvert(valueText) // TODO: implement support for type "string"
     onChangeValue(newValue, key)
+  }
+
+  function handleValueBlur () {
+    // make sure differences in escaped text like with new lines is updated
+    domValue.innerText = escapedValue
   }
 
   function handleValueClick (event) {
@@ -152,9 +189,9 @@
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
-        >
-          {escapedKey}
-        </div>
+          on:blur={handleKeyBlur}
+          bind:this={domKey}
+        />
         <div class="separator">:</div>
       {/if}
       {#if expanded}
@@ -201,9 +238,9 @@
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
-        >
-          {escapedKey}
-        </div>
+          on:blur={handleKeyBlur}
+          bind:this={domKey}
+        />
         <span class="separator">:</span>
       {/if}
       {#if expanded}
@@ -238,9 +275,9 @@
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
-        >
-          {escapedKey}
-        </div>
+          on:blur={handleKeyBlur}
+          bind:this={domKey}
+        />
         <span class="separator">:</span>
       {/if}
       <div
@@ -248,12 +285,12 @@
         contenteditable="true"
         spellcheck="false"
         on:input={handleValueInput}
+        on:blur={handleValueBlur}
         on:click={handleValueClick}
         on:keydown={handleValueKeyDown}
+        bind:this={domValue}
         title={valueIsUrl ? 'Ctrl+Click or Ctrl+Enter to open url in new window' : null}
-      >
-        {escapedValue}
-      </div>
+      />
     </div>
   {/if}
 </div>
@@ -386,24 +423,23 @@
   }
 
   div.empty {
-    border: 1px dotted lightgray;
-    border-radius: 2px;
-    padding: 0 $input-padding;
-    line-height: 17px;
-  }
+    &:not(:focus) {
+      outline: 1px dotted lightgray;
+      -moz-outline-radius: 2px;
+    }
+    
+    &::after {
+      pointer-events: none;
+      color: lightgray;
+    }
 
-  div.empty::after,
-  div.empty::after {
-    pointer-events: none;
-    color: lightgray;
-  }
+    &.key::after {
+      content: 'key';
+    }
 
-  div.key.empty::after {
-    content: 'key';
-  }
-
-  div.value.empty::after {
-    content: 'value';
+    &.value::after {
+      content: 'value';
+    }
   }
 
   .key.search,
