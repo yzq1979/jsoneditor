@@ -5,8 +5,7 @@
  * @return {String} innerText
  */
 export function getInnerText (element, buffer) {
-    const first = (buffer === undefined)
-    if (first) {
+    if (buffer === undefined) {
       buffer = {
         'text': '',
         'flush': function () {
@@ -53,16 +52,6 @@ export function getInnerText (element, buffer) {
       }
   
       return innerText
-    }
-    else {
-      if (element.nodeName === 'P' && getInternetExplorerVersion() !== -1) {
-        // On Internet Explorer, a <p> with hasChildNodes()==false is
-        // rendered with a new line. Note that a <p> with
-        // hasChildNodes()==true is rendered without a new line
-        // Other browsers always ensure there is a <br> inside the <p>,
-        // and if not, the <p> does not render a new line
-        return buffer.flush()
-      }
     }
   
     // br or unknown
