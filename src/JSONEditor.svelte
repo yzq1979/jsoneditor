@@ -6,7 +6,7 @@
 	import { immutableJSONPatch } from './utils/immutableJSONPatch'
 
 	export let json = {}
-	export let onChange = () => {}
+	export let onChangeJson = () => {}
 	export let searchText = ''
 
 	export function get() {
@@ -30,7 +30,7 @@
 
 	$: searchResult = searchText ? doSearch(json, searchText) : undefined
 
-	$: onChange(json)
+	$: onChangeJson(json)
 
 	function handleChangeKey (key, oldKey) {
 		// console.log('handleChangeKey', { key, oldKey })
@@ -46,7 +46,7 @@
 	 * @param {JSONPatchDocument} operations
 	 */ 
   function handleChange (operations) {
-		console.log('handleChange', operations)
+		// console.log('handleChange', operations)
 		
 		// TODO: store changes in history
 		json = immutableJSONPatch(json, operations).json

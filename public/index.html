@@ -6,11 +6,140 @@
 
 	<title>JSON Editor (Svelte)</title>
 
-	<link rel='icon' type='image/png' href='/favicon.png'>
+	<link rel='icon' type='image/png' href='favicon.png'>
 
-	<script defer src='/build/bundle.js'></script>
+	<style>
+		html, body {
+			position: relative;
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			color: #333;
+			margin: 0;
+			padding: 8px;
+			box-sizing: border-box;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+		}
+
+		h1 {
+			color: purple;
+		}
+
+		#testEditor {
+			width: 800px;
+			height: 500px;
+		}
+	</style>
 </head>
 
 <body>
+	<div id="testEditor"></div>
+	<p>
+		<button id="loadLargeJson">load large json</button>
+		<button id="clearJson">clear json</button>
+		<input id="loadFile" type="file">
+	</p>
+
+	<script type="module">
+		import jsoneditor from './build/jsoneditor.module.js'
+
+		const json = {
+			'array': [1, 2, 3, {
+				name: 'Item ' + 2,
+				id: String(2),
+				index: 2,
+				time: new Date().toISOString(),
+				location: {
+					latitude: 1.23,
+					longitude: 23.44,
+					coordinates: [23.44, 1.23]
+				}
+			}],
+			'boolean': true,
+			'color': '#82b92c',
+			'null': null,
+			'number': 123,
+			'object': {
+				'a': 'b', 'c': 'd', nested: {
+					name: 'Item ' + 2,
+					id: String(2),
+					index: 2,
+					time: new Date().toISOString(),
+					location: {
+						latitude: 1.23,
+						longitude: 23.44,
+						coordinates: [23.44, 1.23]
+					}
+				}
+			},
+			'': '',
+			'string': 'Hello World',
+			'url': 'https://jsoneditoronline.org',
+			'Lorem Ipsum': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+		}
+
+		const testEditor = jsoneditor({
+			target: document.getElementById('testEditor'),
+			props: {
+				json,
+				onChangeJson: json => console.log('onChangeJson', json)
+			}
+		})
+
+		document.getElementById('loadLargeJson').onclick = function handleLoadLargeJson() {
+			const count = 500
+
+			console.log('create large json', {count})
+			console.time('create large json')
+			const largeJson = {}
+			largeJson.numbers = []
+			largeJson.array = []
+			for (let i = 0; i < count; i++) {
+				const longitude = 4 + i / count
+				const latitude = 51 + i / count
+
+				largeJson.numbers.push(i)
+				largeJson.array.push({
+					name: 'Item ' + i,
+					id: String(i),
+					index: i,
+					time: new Date().toISOString(),
+					location: {
+						latitude,
+						longitude,
+						coordinates: [longitude, latitude]
+					},
+					random: Math.random()
+				})
+			}
+			console.timeEnd('create large json')
+
+			// const stringifiedSize = JSON.stringify(largeJson).length
+			// console.log(`large json stringified size: ${filesize(stringifiedSize)}`)
+
+			testEditor.set(largeJson)
+		}
+
+		document.getElementById('clearJson').onclick = function handleClearJson() {
+			testEditor.set({})
+		}
+		
+		document.getElementById('loadFile').onchange = function loadFile(event) {
+			console.log('loadFile', event.target.files)
+
+			const reader = new FileReader()
+			const file = event.target.files[0]
+			reader.onload = function (event) {
+				const text = event.target.result
+				const json = JSON.parse(text)
+				testEditor.set(json)
+			}
+			reader.readAsText(file)
+		}
+	</script>
 </body>
 </html>
