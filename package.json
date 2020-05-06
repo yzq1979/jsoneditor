@@ -8,7 +8,7 @@
     "test": "mocha ./src/**/*.test.js"
   },
   "type": "module",
-  "module": "./public/build/jsoneditor.mjs",
+  "module": "./public/dist/es/jsoneditor.js",
   "dependencies": {
     "@fortawesome/free-regular-svg-icons": "5.13.0",
     "@fortawesome/free-solid-svg-icons": "5.13.0",
