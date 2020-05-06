@@ -3,6 +3,7 @@
   import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons'
   import { SEARCH_PROPERTY, SEARCH_VALUE } from './search'
   import classnames from 'classnames'
+  import debounce from 'lodash/debounce'
   import { isUrl, stringConvert, valueType } from './utils/typeUtils'
   import { escapeHTML } from './utils/stringUtils.js'
   import { updateProps } from './utils/updateProps.js'
@@ -25,6 +26,7 @@
       : []
   }
 
+  const DEBOUNCE_DELAY = 300 // milliseconds TODO: make the debounce delay configurable?
   const DEFAULT_LIMIT = 100
   const escapeUnicode = false // TODO: pass via options
 
@@ -61,6 +63,7 @@
       : false
   })
 
+  let valueClass
   $: valueClass = getValueClass(value, searchResult)
 
   $: if (domKey) {
@@ -97,8 +100,8 @@
     expanded = !expanded
   }
 
-  function handleKeyInput (event) {
-    const newKey = unescapeHTML(getInnerText(event.target))
+  function updateKey () {
+    const newKey = unescapeHTML(getInnerText(domKey))
   
     // TODO: replace the onChangeKey callback with gobally managed JSONNode id's, 
     //  which are kept in sync with the json itself using JSONPatch
@@ -111,15 +114,28 @@
       path: compileJSONPointer(parentPath.concat(newKey))
     }])
   }
+  const updateKeyDebounced = debounce(updateKey, DEBOUNCE_DELAY)
 
-  function handleKeyBlur () {
+  function handleKeyInput (event) {
+    updateKeyDebounced()
+  }
+
+  function handleKeyBlur (event) {
+    // handle any pending changes still waiting in the debounce function
+    updateKeyDebounced.flush()
+
     // make sure differences in escaped text like with new lines is updated
     domKey.innerText = escapedValue
   }
 
-  function handleValueInput (event) {
-    const valueText = unescapeHTML(getInnerText(event.target))
-    const newValue = stringConvert(valueText) // TODO: implement support for type "string"
+  // get the value from the DOM
+  function getValue () {
+    const valueText = unescapeHTML(getInnerText(domValue))
+    return stringConvert(valueText) // TODO: implement support for type "string"
+  }
+
+  function updateValue () {
+    const newValue = getValue()
 
     onChange([{
       op: 'replace',
@@ -127,8 +143,21 @@
       value: newValue
     }])
   }
+  const debouncedUpdateValue = debounce(updateValue, DEBOUNCE_DELAY)
 
-  function handleValueBlur () {
+  function handleValueInput () {
+    // do not await the debounced update to apply styles
+    const newValue = getValue()
+    valueClass = getValueClass(newValue, searchResult)
+
+    // fire a change event only after a delay
+    debouncedUpdateValue()
+  }
+
+  function handleValueBlur (event) {
+    // handle any pending changes still waiting in the debounce function
+    debouncedUpdateValue.flush()
+
     // make sure differences in escaped text like with new lines is updated
     domValue.innerText = escapedValue
   }
