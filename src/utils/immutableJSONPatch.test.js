@@ -333,5 +333,3 @@ test('jsonpatch test (fail: value not equal)', () => {
   expect(result.revert).toEqual([])
   expect(result.error.toString()).toEqual('Error: Test failed, value differs')
 })
-
-// TODO: test all operations with JSONPatchOptions (not just add)
