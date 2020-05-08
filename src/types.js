@@ -43,14 +43,6 @@
 
 /**
  * @typedef {{
- *   fromJSON: function(json: JSON, previousObject: * | undefined),
- *   toJSON: function(object: *),
- *   clone: function(object: *)
- * }} JSONPatchOptions
- */
-
-/**
- * @typedef {{
  *   patch: JSONPatchDocument,
  *   revert: JSONPatchDocument,
  *   error: Error | null
