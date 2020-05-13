@@ -66,6 +66,7 @@
       onChange={handleChange}
       getParentPath={getPath}
     />
+    <div class='bottom'></div>
   </div>
 </div>
 
