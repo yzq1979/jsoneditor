@@ -69,4 +69,4 @@
   </div>
 </div>
 
-<style type="text/scss" src="JSONEditor.sass"></style>
+<style src="JSONEditor.scss"></style>

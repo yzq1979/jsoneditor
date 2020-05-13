@@ -220,7 +220,7 @@
           on:input={handleKeyInput}
           on:blur={handleKeyBlur}
           bind:this={domKey}
-        />
+        ></div>
         <div class="separator">:</div>
       {/if}
       {#if expanded}
@@ -270,7 +270,7 @@
           on:input={handleKeyInput}
           on:blur={handleKeyBlur}
           bind:this={domKey}
-        />
+        ></div>
         <span class="separator">:</span>
       {/if}
       {#if expanded}
@@ -308,7 +308,7 @@
           on:input={handleKeyInput}
           on:blur={handleKeyBlur}
           bind:this={domKey}
-        />
+        ></div>
         <span class="separator">:</span>
       {/if}
       <div
@@ -321,9 +321,9 @@
         on:keydown={handleValueKeyDown}
         bind:this={domValue}
         title={valueIsUrl ? 'Ctrl+Click or Ctrl+Enter to open url in new window' : null}
-      />
+      ></div>
     </div>
   {/if}
 </div>
 
-<style type="text/scss" src="JSONNode.sass"></style>
+<style src="JSONNode.scss"></style>
