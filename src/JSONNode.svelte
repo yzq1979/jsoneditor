@@ -52,18 +52,14 @@
 
   $: valueIsUrl = isUrl(value)
 
-  $: keyClass = classnames('key', {
-    empty: key === '',
-    search: searchResult 
-      ? !!searchResult[SEARCH_PROPERTY]
-      : false
-  })
+  let keyClass
+  $: keyClass = getKeyClass(key, searchResult)
 
   let valueClass
   $: valueClass = getValueClass(value, searchResult)
 
   $: if (domKey) {
-    if (document.activeElement !== domKey || key === '') {
+    if (document.activeElement !== domKey) {
       // synchronize the innerText of the editable div with the escaped value,
       // but only when the domValue does not have focus else we will ruin 
       // the cursor position.
@@ -72,7 +68,7 @@
   }
 
   $: if (domValue) {
-    if (document.activeElement !== domValue || value === '') {
+    if (document.activeElement !== domValue) {
       // synchronize the innerText of the editable div with the escaped value,
       // but only when the domValue does not have focus else we will ruin 
       // the cursor position.
@@ -88,6 +84,15 @@
       empty: typeof value === 'string' && value.length === 0,
       search: searchResult
         ? !!searchResult[SEARCH_VALUE]
+        : false
+    })
+  }
+
+  function getKeyClass(key, searchResult) {
+    return classnames('key', {
+      empty: key === '',
+      search: searchResult
+        ? !!searchResult[SEARCH_PROPERTY]
         : false
     })
   }
@@ -113,6 +118,14 @@
   const updateKeyDebounced = debounce(updateKey, DEBOUNCE_DELAY)
 
   function handleKeyInput (event) {
+    const newKey = getPlainText(event.target)
+    keyClass = getKeyClass(newKey, searchResult)
+    if (newKey === '') {
+      // immediately update to cleanup any left over <br/>
+      setPlainText(domKey, '')
+    }
+
+    // fire a change event only after a delay
     updateKeyDebounced()
   }
 
@@ -145,6 +158,10 @@
     // do not await the debounced update to apply styles
     const newValue = getValue()
     valueClass = getValueClass(newValue, searchResult)
+    if (newValue === '') {
+      // immediately update to cleanup any left over <br/>
+      setPlainText(domValue, '')
+    }
 
     // fire a change event only after a delay
     debouncedUpdateValue()
