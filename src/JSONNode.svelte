@@ -1,14 +1,12 @@
 <script>
+  import { getPlainText, setPlainText } from './utils/domUtils.js'
   import Icon from 'svelte-awesome'
   import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons'
   import { SEARCH_PROPERTY, SEARCH_VALUE } from './search'
   import classnames from 'classnames'
   import debounce from 'lodash/debounce'
   import { isUrl, stringConvert, valueType } from './utils/typeUtils'
-  import { escapeHTML } from './utils/stringUtils.js'
   import { updateProps } from './utils/updateProps.js'
-  import { unescapeHTML } from './utils/stringUtils'
-  import { getInnerText } from './utils/domUtils'
   import { compileJSONPointer } from './utils/jsonPointer'
 
   export let key = undefined // only applicable for object properties
@@ -52,12 +50,10 @@
     ? limited ? value.slice(0, limit) : value
     : undefined
 
-  $: escapedKey = escapeHTML(key, escapeUnicode)
-  $: escapedValue = escapeHTML(value, escapeUnicode)
   $: valueIsUrl = isUrl(value)
 
   $: keyClass = classnames('key', {
-    empty: escapedKey.length === 0,
+    empty: key === '',
     search: searchResult 
       ? !!searchResult[SEARCH_PROPERTY]
       : false
@@ -67,20 +63,20 @@
   $: valueClass = getValueClass(value, searchResult)
 
   $: if (domKey) {
-    if (document.activeElement !== domKey || escapedKey === '') {
+    if (document.activeElement !== domKey || key === '') {
       // synchronize the innerText of the editable div with the escaped value,
       // but only when the domValue does not have focus else we will ruin 
       // the cursor position.
-      domKey.innerText = escapedKey
+      setPlainText(domKey, key)
     }
   }
 
   $: if (domValue) {
-    if (document.activeElement !== domValue || escapedValue === '') {
+    if (document.activeElement !== domValue || value === '') {
       // synchronize the innerText of the editable div with the escaped value,
       // but only when the domValue does not have focus else we will ruin 
       // the cursor position.
-      domValue.innerText = escapedValue
+      setPlainText(domValue, value)
     }
   }
 
@@ -89,7 +85,7 @@
 
     return classnames('value', type, {
       url: isUrl(value),
-      empty: escapedValue.length === 0,
+      empty: typeof value === 'string' && value.length === 0,
       search: searchResult
         ? !!searchResult[SEARCH_VALUE]
         : false
@@ -101,7 +97,7 @@
   }
 
   function updateKey () {
-    const newKey = unescapeHTML(getInnerText(domKey))
+    const newKey = getPlainText(domKey)
   
     // TODO: replace the onChangeKey callback with gobally managed JSONNode id's, 
     //  which are kept in sync with the json itself using JSONPatch
@@ -125,12 +121,12 @@
     updateKeyDebounced.flush()
 
     // make sure differences in escaped text like with new lines is updated
-    domKey.innerText = escapedValue
+    setPlainText(domKey, key)
   }
 
   // get the value from the DOM
   function getValue () {
-    const valueText = unescapeHTML(getInnerText(domValue))
+    const valueText = getPlainText(domValue)
     return stringConvert(valueText) // TODO: implement support for type "string"
   }
 
@@ -159,7 +155,7 @@
     debouncedUpdateValue.flush()
 
     // make sure differences in escaped text like with new lines is updated
-    domValue.innerText = escapedValue
+    setPlainText(domValue, value)
   }
 
   function handleValueClick (event) {
