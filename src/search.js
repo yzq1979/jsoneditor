@@ -1,10 +1,10 @@
 import { valueType } from './utils/typeUtils'
 
-export const SEARCH_PROPERTY = Symbol('searchProperty')
-export const SEARCH_VALUE = Symbol('searchValue')
+export const SEARCH_PROPERTY = '$jse:search:property'
+export const SEARCH_VALUE = '$jse:search:value'
 
 export function search (key, value, searchText) {
-  let results
+  let results = undefined
 
   if (typeof key === 'string' && containsCaseInsensitive(key, searchText)) {
     results = createOrAdd(results, SEARCH_PROPERTY, true)
