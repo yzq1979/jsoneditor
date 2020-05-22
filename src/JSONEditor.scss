@@ -11,16 +11,49 @@
   .menu {
     font-family: $font-family-menu;
     font-size: $font-size;
-    padding: $menu-padding;
     background: $theme-color;
     color: $white;
-    text-align: right;
-    
-    .search-input {
+    display: flex;
+    align-items: center;
+
+    .button {
+      width: 32px;
+      height: 32px;
       border: none;
-      font-family: $font-family-menu;
-      font-size: $font-size;
-      padding: $input-padding;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+
+      &:hover,
+      &:focus {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      &:disabled {
+        color: rgba(255, 255, 255, 0.5);
+        background: transparent;
+      }
+    }
+
+    .space {
+      flex: 1;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+
+      .search-icon {
+        margin-right: $menu-padding;
+      }
+
+      .search-input {
+        border: none;
+        font-family: $font-family-menu;
+        font-size: $font-size;
+        padding: $input-padding;
+        margin-right: 2px;
+      }
     }
   }
   

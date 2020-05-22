@@ -13,7 +13,7 @@
   export let key = undefined // only applicable for object properties
   export let value
   export let searchResult
-  export let onChange
+  export let onPatch
   export let onChangeKey
   export let expanded = false
 
@@ -137,7 +137,7 @@
   function updateValue () {
     const newValue = getValue()
 
-    onChange([{
+    onPatch([{
       op: 'replace',
       path: compileJSONPointer(getPath()),
       value: newValue
@@ -205,7 +205,7 @@
         }
 
         const path = getPath()
-        onChange([{
+        onPatch([{
           op: 'move',
           from: compileJSONPointer(path.concat(oldChildKey)),
           path: compileJSONPointer(path.concat(uniqueNewChildKey))
@@ -256,7 +256,7 @@
             value={item}
             searchResult={searchResult ? searchResult[index] : undefined}
             onChangeKey={handleChangeKey}
-            onChange={onChange}
+            onPatch={onPatch}
             getParentPath={getPath}
           />
         {/each}
@@ -306,7 +306,7 @@
             value={value[prop.key]}
             searchResult={searchResult ? searchResult[prop.key] : undefined}
             onChangeKey={handleChangeKey}
-            onChange={onChange}
+            onPatch={onPatch}
             getParentPath={getPath}
           />
         {/each}

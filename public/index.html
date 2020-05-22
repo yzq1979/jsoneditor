@@ -41,6 +41,7 @@
 	<p>
 		<button id="loadLargeJson">load large json</button>
 		<button id="clearJson">clear json</button>
+		<button id="patchJson">patch json</button>
 		<input id="loadFile" type="file">
 	</p>
 
@@ -126,6 +127,16 @@
 
 		document.getElementById('clearJson').onclick = function handleClearJson() {
 			testEditor.set({})
+		}
+		
+		document.getElementById('patchJson').onclick = function handleClearJson() {
+			const operations = [{
+				op: 'replace', 
+				path: '/object/c',
+				value: 'd2'
+			}]
+
+			testEditor.patch(operations)
 		}
 		
 		document.getElementById('loadFile').onchange = function loadFile(event) {
