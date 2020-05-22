@@ -13,33 +13,17 @@ import { isObjectOrArray } from  './typeUtils.js'
 
 /**
  * Shallow clone of an Object, Array, or value
- * Also copies any symbols on the Objects and Arrays
  * @param {*} value
  * @return {*}
  */
-export function shallowCloneWithSymbols (value) {
+export function shallowClone (value) {
   if (Array.isArray(value)) {
     // copy array items
-    let arr = value.slice()
-
-    // copy all symbols
-    Object.getOwnPropertySymbols(value).forEach(symbol => arr[symbol] = value[symbol])
-
-    return arr
+    return value.slice()
   }
   else if (typeof value === 'object') {
-    // copy properties
-    let obj = {}
-    for (let prop in value) {
-      if (value.hasOwnProperty(prop)) {
-        obj[prop] = value[prop]
-      }
-    }
-
-    // copy all symbols
-    Object.getOwnPropertySymbols(value).forEach(symbol => obj[symbol] = value[symbol])
-
-    return obj
+    // copy object properties
+    return { ...value }
   }
   else {
     return value
@@ -97,7 +81,7 @@ export function setIn (object, path, value) {
     return object
   }
   else {
-    const updatedObject = shallowCloneWithSymbols(object)
+    const updatedObject = shallowClone(object)
     updatedObject[key] = updatedValue
     return updatedObject
   }
@@ -129,7 +113,7 @@ export function updateIn (object, path, callback) {
     return object
   }
   else {
-    const updatedObject = shallowCloneWithSymbols(object)
+    const updatedObject = shallowClone(object)
     updatedObject[key] = updatedValue
     return updatedObject
   }
@@ -159,9 +143,9 @@ export function deleteIn (object, path) {
       return object
     }
     else {
-      const updatedObject = shallowCloneWithSymbols(object)
+      const updatedObject = shallowClone(object)
 
-      if (Array.isArray(updatedObject) && typeof key !== 'symbol') {
+      if (Array.isArray(updatedObject)) {
         updatedObject.splice(key, 1)
       }
       else {
@@ -179,7 +163,7 @@ export function deleteIn (object, path) {
     return object
   }
   else {
-    const updatedObject = shallowCloneWithSymbols(object)
+    const updatedObject = shallowClone(object)
     updatedObject[key] = updatedValue
     return updatedObject
   }
@@ -205,7 +189,7 @@ export function insertAt (object, path, value) {
       throw new TypeError('Array expected at path ' + JSON.stringify(parentPath))
     }
 
-    const updatedItems = shallowCloneWithSymbols(items)
+    const updatedItems = shallowClone(items)
     updatedItems.splice(index, 0, value)
 
     return updatedItems
@@ -215,7 +199,6 @@ export function insertAt (object, path, value) {
 /**
  * Transform a JSON object, traverse over the whole object,
  * and allow replacing Objects/Arrays/values.
- * Does not iterate over symbols.
  * @param {JSON} json
  * @param {function (json: JSON, path: Path) : JSON} callback
  * @param {Path} [path]
@@ -235,7 +218,7 @@ export function transform (json, callback, path = []) {
       const after = transform(before, callback, path.concat(i + ''))
       if (after !== before) {
         if (!updated2) {
-          updated2 = shallowCloneWithSymbols(updated1)
+          updated2 = shallowClone(updated1)
         }
         updated2[i] = after
       }
@@ -252,7 +235,7 @@ export function transform (json, callback, path = []) {
         const after = transform(before, callback, path.concat(key))
         if (after !== before) {
           if (!updated2) {
-            updated2 = shallowCloneWithSymbols(updated1)
+            updated2 = shallowClone(updated1)
           }
           updated2[key] = after
         }
