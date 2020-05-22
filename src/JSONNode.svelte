@@ -103,17 +103,7 @@
 
   function updateKey () {
     const newKey = getPlainText(domKey)
-  
-    // TODO: replace the onChangeKey callback with gobally managed JSONNode id's, 
-    //  which are kept in sync with the json itself using JSONPatch
     onChangeKey(newKey, key)
-
-    const parentPath = getParentPath()
-    onChange([{
-      op: 'move',
-      from: compileJSONPointer(parentPath.concat(key)),
-      path: compileJSONPointer(parentPath.concat(newKey))
-    }])
   }
   const updateKeyDebounced = debounce(updateKey, DEBOUNCE_DELAY)
 
@@ -195,9 +185,10 @@
 
   function handleChangeKey (newChildKey, oldChildKey) {
     if (type === 'object') {
+      // we need to make sure that the renamed property will keep the same id
       const index = props.findIndex(item => item.key === oldChildKey)
       if (index !== -1) {
-        // we use splice here to replace the old key with the new new one 
+        // we use splice here to replace the old key with the new new one
         // already without Svelte noticing it (no assignment), so we prevent
         // a needless render. We keep the same id, so the child HTML will be
         // reused
@@ -207,6 +198,13 @@
           key: newChildKey
         })
       }
+
+      const path = getPath()
+      onChange([{
+        op: 'move',
+        from: compileJSONPointer(path.concat(oldChildKey)),
+        path: compileJSONPointer(path.concat(newChildKey))
+      }])
     }
   }
 
