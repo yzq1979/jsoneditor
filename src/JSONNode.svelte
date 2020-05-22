@@ -5,6 +5,7 @@
   import { SEARCH_PROPERTY, SEARCH_VALUE } from './search'
   import classnames from 'classnames'
   import debounce from 'lodash/debounce'
+  import { findUniqueName } from './utils/stringUtils.js'
   import { isUrl, stringConvert, valueType } from './utils/typeUtils'
   import { updateProps } from './utils/updateProps.js'
   import { compileJSONPointer } from './utils/jsonPointer'
@@ -185,26 +186,31 @@
 
   function handleChangeKey (newChildKey, oldChildKey) {
     if (type === 'object') {
-      // we need to make sure that the renamed property will keep the same id
-      const index = props.findIndex(item => item.key === oldChildKey)
-      if (index !== -1) {
-        // we use splice here to replace the old key with the new new one
-        // already without Svelte noticing it (no assignment), so we prevent
-        // a needless render. We keep the same id, so the child HTML will be
-        // reused
-        // TODO: is there a better way to do this?
-        props.splice(index, 1, {
-          id: props[index].id,
-          key: newChildKey
-        })
-      }
+      // make sure the key is not a duplicate of an other property
+      const uniqueNewChildKey = findUniqueName(newChildKey, value)
 
-      const path = getPath()
-      onChange([{
-        op: 'move',
-        from: compileJSONPointer(path.concat(oldChildKey)),
-        path: compileJSONPointer(path.concat(newChildKey))
-      }])
+      if (uniqueNewChildKey !== oldChildKey) {
+        // we need to make sure that the renamed property will keep the same id
+        const index = props.findIndex(item => item.key === oldChildKey)
+        if (index !== -1) {
+          // we use splice here to replace the old key with the new new one
+          // already without Svelte noticing it (no assignment), so we prevent
+          // a needless render. We keep the same id, so the child HTML will be
+          // reused
+          // TODO: is there a better way to do this?
+          props.splice(index, 1, {
+            id: props[index].id,
+            key: uniqueNewChildKey
+          })
+        }
+
+        const path = getPath()
+        onChange([{
+          op: 'move',
+          from: compileJSONPointer(path.concat(oldChildKey)),
+          path: compileJSONPointer(path.concat(uniqueNewChildKey))
+        }])
+      }
     }
   }
 
