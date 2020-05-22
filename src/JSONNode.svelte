@@ -2,7 +2,7 @@
   import { getPlainText, setPlainText } from './utils/domUtils.js'
   import Icon from 'svelte-awesome'
   import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons'
-  import { SEARCH_PROPERTY, SEARCH_VALUE } from './search'
+  import { SEARCH_PROPERTY, SEARCH_VALUE } from './utils/search.js'
   import classnames from 'classnames'
   import debounce from 'lodash/debounce'
   import { findUniqueName } from './utils/stringUtils.js'

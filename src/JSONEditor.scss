@@ -39,6 +39,14 @@
       flex: 1;
     }
 
+    .separator {
+      background: rgba(255, 255, 255, 0.2);
+      box-sizing: border-box;
+      width: 1px;
+      height: 24px;
+      margin: 5px;
+    }
+
     .search-box {
       display: flex;
       align-items: center;
@@ -60,6 +68,13 @@
   .contents {
     flex: 1;
     overflow: auto;
+    position: relative;
+
+    .search {
+      position: absolute;
+      top: $search-box-offset;
+      right: $search-box-offset;
+    }
 
     .bottom {
       height: $input-padding;

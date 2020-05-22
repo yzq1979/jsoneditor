@@ -1,4 +1,4 @@
-import { valueType } from './utils/typeUtils'
+import { valueType } from './typeUtils.js'
 
 export const SEARCH_PROPERTY = '$jse:search:property'
 export const SEARCH_VALUE = '$jse:search:value'
@@ -38,11 +38,6 @@ function createOrAdd(object, key, value) {
   if (object) {
     object[key] = value
     return object
-
-    // return {
-    //     ...object,
-    //     [key]: value
-    // }
   } else {
     return {
       [key]: value
