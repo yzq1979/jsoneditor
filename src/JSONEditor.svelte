@@ -1,4 +1,5 @@
 <script>
+  import { EXPANDED_PROPERTY } from './constants.js'
   import SearchBox from './SearchBox.svelte'
   import Icon from 'svelte-awesome'
   import { faSearch, faUndo, faRedo } from '@fortawesome/free-solid-svg-icons'
@@ -12,6 +13,10 @@
 
   export let json = {}
   export let onChangeJson = () => {
+  }
+
+  let state = {
+    [EXPANDED_PROPERTY]: true
   }
 
   let showSearch = true // FIXME: change to false
@@ -33,10 +38,19 @@
     history.clear()
   }
 
+  function applyPatch (operations) {
+    const patchResult = immutableJSONPatch(json, operations)
+    json = patchResult.json
+
+    state = immutableJSONPatch(state, operations).json
+
+    return patchResult
+  }
+
   export function patch(operations) {
     console.log('patch', operations)
 
-    const patchResult = immutableJSONPatch(json, operations)
+    const patchResult = applyPatch(operations)
 
     history.add({
       undo: patchResult.revert,
@@ -123,7 +137,7 @@
     if (history.getState().canUndo) {
       const item = history.undo()
       if (item) {
-        json = immutableJSONPatch(json, item.undo).json
+        applyPatch(item.undo)
         emitOnChange()
       }
     }
@@ -133,10 +147,19 @@
     if (history.getState().canRedo) {
       const item = history.redo()
       if (item) {
-        json = immutableJSONPatch(json, item.redo).json
+        applyPatch(item.redo)
         emitOnChange()
       }
     }
+  }
+
+  /**
+   * Toggle expanded state of a node
+   * @param {Path} path
+   * @param {boolean} expanded
+   */
+  function handleExpand (path, expanded) {
+    state = setIn(state, path.concat(EXPANDED_PROPERTY), expanded)
   }
 
   function handleKeyDown (event) {
@@ -228,10 +251,11 @@
   <div class="contents">
     <Node
       value={json}
+      state={state}
       searchResult={searchResultWithActive}
-      expanded={true}
       onChangeKey={handleChangeKey}
       onPatch={handlePatch}
+      onExpand={handleExpand}
       getParentPath={getPath}
     />
     <div class='bottom'></div>

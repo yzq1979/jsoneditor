@@ -1,7 +1,5 @@
+import { SEARCH_PROPERTY, SEARCH_VALUE } from '../constants.js'
 import { valueType } from './typeUtils.js'
-
-export const SEARCH_PROPERTY = '$jse:search:property'
-export const SEARCH_VALUE = '$jse:search:value'
 
 export function search (key, value, searchText) {
   let results = undefined

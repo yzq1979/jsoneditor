@@ -25,7 +25,7 @@
  */
 
 /**
- * @typedef {string[]} Path
+ * @typedef {<string | number>[]} Path
  */
 
 /**

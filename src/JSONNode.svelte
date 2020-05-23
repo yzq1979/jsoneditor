@@ -1,8 +1,12 @@
 <script>
+  import {
+    EXPANDED_PROPERTY,
+    SEARCH_PROPERTY,
+    SEARCH_VALUE
+  } from './constants.js'
   import { getPlainText, setPlainText } from './utils/domUtils.js'
   import Icon from 'svelte-awesome'
   import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons'
-  import { SEARCH_PROPERTY, SEARCH_VALUE } from './utils/search.js'
   import classnames from 'classnames'
   import debounce from 'lodash/debounce'
   import { findUniqueName } from './utils/stringUtils.js'
@@ -12,12 +16,15 @@
 
   export let key = undefined // only applicable for object properties
   export let value
+  export let state
   export let searchResult
   export let onPatch
   export let onChangeKey
-  export let expanded = false
+  export let onExpand
 
   export let getParentPath
+
+  $: expanded = state && state[EXPANDED_PROPERTY]
 
   function getPath () {
     return key !== undefined
@@ -93,7 +100,7 @@
   }
 
   function toggle () {
-    expanded = !expanded
+    onExpand(getPath(), !expanded)
   }
 
   function updateKey () {
@@ -238,7 +245,7 @@
         <div class="delimiter">[</div>
       {:else}
         <div class="delimiter">[</div>
-        <button class="tag" on:click={() => expanded = true}>{value.length} items</button>
+        <button class="tag" on:click={() => onExpand(getPath(), true)}>{value.length} items</button>
         <div class="delimiter">]</div>
       {/if}
     </div>
@@ -248,9 +255,11 @@
           <svelte:self
             key={index}
             value={item}
+            state={state && state[index]}
             searchResult={searchResult ? searchResult[index] : undefined}
             onChangeKey={handleChangeKey}
             onPatch={onPatch}
+            onExpand={onExpand}
             getParentPath={getPath}
           />
         {/each}
@@ -288,7 +297,7 @@
         <span class="delimiter">&#123;</span>
       {:else}
         <span class="delimiter"> &#123;</span>
-        <button class="tag" on:click={() => expanded = true}>{props.length} props</button>
+        <button class="tag" on:click={() => onExpand(getPath(), true)}>{props.length} props</button>
         <span class="delimiter">}</span>
       {/if}
     </div>
@@ -298,9 +307,11 @@
           <svelte:self
             key={prop.key}
             value={value[prop.key]}
+            state={state && state[prop.key]}
             searchResult={searchResult ? searchResult[prop.key] : undefined}
             onChangeKey={handleChangeKey}
             onPatch={onPatch}
+            onExpand={onExpand}
             getParentPath={getPath}
           />
         {/each}

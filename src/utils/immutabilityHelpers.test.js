@@ -59,19 +59,32 @@ test('setIn basic', () => {
   expect(obj).not.toBe(updated)
 })
 
-test('setIn non existing path', () => {
+test('setIn non existing path should create the path (1)', () => {
   const obj = {}
 
-  expect(() => setIn(obj, ['a', 'b', 'c'], 4)).toThrow(/Path does not exist/)
+  expect(setIn(obj, ['a', 'b', 'c'], 4)).toEqual({
+    a: {
+      b: {
+        c: 4
+      }
+    }
+  })
 })
 
-test('setIn replace value with object should throw an exception', () => {
+test('setIn on non-existing path should create the path (2)', () => {
   const obj = {
     a: 42,
     d: 3
   }
 
-  expect(()  => setIn(obj, ['a', 'b', 'c'], 4)).toThrow(/Path does not exist/)
+  expect(setIn(obj, ['a', 'b', 'c'], 4)).toEqual({
+    a: {
+      b: {
+        c: 4
+      }
+    },
+    d: 3
+  })
 })
 
 test('setIn replace value inside nested array', () => {
