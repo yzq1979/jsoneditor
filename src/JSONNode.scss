@@ -147,4 +147,8 @@ div.empty {
 .key.search,
 .value.search {
   background-color: $highlight-color;
+
+  &.active {
+    background-color: $highlight-active-color;
+  }
 }

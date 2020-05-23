@@ -7,44 +7,47 @@
   const DEBOUNCE_DELAY = 300 // milliseconds TODO: make the debounce delay configurable?
 
   export let text = ''
+  let inputText = ''
+  export let resultCount = 0
+  export let activeIndex = 0
   export let onChange = () => {}
+  export let onPrevious = () => {}
+  export let onNext = () => {}
   export let onClose = () => {}
-
-  let activeResultIndex = 0
-  let resultCount = 0
 
   $: onChangeDebounced = debounce(onChange, DEBOUNCE_DELAY)
 
   function handleSubmit (event) {
     event.preventDefault()
 
-    onChangeDebounced.cancel()
-    onChange(text)
+    const pendingChanges = text !== inputText
+    if (pendingChanges) {
+      onChangeDebounced.cancel()
+      onChange(inputText)
+    } else {
+      onNext()
+    }
   }
 
   function handleInput (event) {
-    text = event.target.value
+    inputText = event.target.value
 
-    onChangeDebounced(text)
+    onChangeDebounced(inputText)
     // TODO: fire debounced onChange
-  }
-
-  function handleClose () {
-    onChange('')
-    onClose()
   }
 
   function handleKeyDown (event) {
     const combo = keyComboFromEvent(event)
+
     if (combo === 'Ctrl+Enter' || combo === 'Command+Enter') {
       event.preventDefault()
-      // this.props.onFocusActive() // FIXME
+      // TODO: move focus to the active element
     }
 
     if (combo === 'Escape') {
       event.preventDefault()
 
-      handleClose()
+      onClose()
     }
   }
 
@@ -68,15 +71,15 @@
       />
     </label>
     <div class="search-count" class:visible={text !== ''}>
-      {activeResultIndex}/{resultCount}
+      {activeIndex + 1}/{resultCount}
     </div>
-    <button class="search-icon search-next">
+    <button class="search-next" on:click={onNext} type="button">
       <Icon data={faChevronDown} />
     </button>
-    <button class="search-icon search-previous">
+    <button class="search-previous" on:click={onPrevious} type="button">
       <Icon data={faChevronUp} />
     </button>
-    <button class="search-icon search-clear" on:click={handleClose}>
+    <button class="search-clear" on:click={onClose} type="button">
       <Icon data={faTimes} />
     </button>
   </form>

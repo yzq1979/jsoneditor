@@ -7,7 +7,7 @@ export function search (key, value, searchText) {
   let results = undefined
 
   if (typeof key === 'string' && containsCaseInsensitive(key, searchText)) {
-    results = createOrAdd(results, SEARCH_PROPERTY, true)
+    results = createOrAdd(results, SEARCH_PROPERTY, 'search')
   }
 
   const type = valueType(value)
@@ -27,11 +27,47 @@ export function search (key, value, searchText) {
     })
   } else { // type is a value
     if (containsCaseInsensitive(value, searchText)) {
-      results = createOrAdd(results, SEARCH_VALUE, true)
+      results = createOrAdd(results, SEARCH_VALUE, 'search')
     }
   }
 
   return results
+}
+
+export function flattenSearch (searchResult) {
+  const resultArray = []
+
+  function _flattenSearch (value, path) {
+    if (value) {
+      if (value[SEARCH_PROPERTY]) {
+        resultArray.push({
+          what: SEARCH_PROPERTY,
+          path
+        })
+      }
+      if (value[SEARCH_VALUE]) {
+        resultArray.push({
+          what: SEARCH_VALUE,
+          path
+        })
+      }
+    }
+
+    const type = valueType(value)
+    if (type === 'array') {
+      searchResult.forEach((item, index) => {
+        _flattenSearch(item, path.concat(index))
+      })
+    } else if (type === 'object') {
+      Object.keys(value).forEach(prop => {
+        _flattenSearch(value[prop], path.concat(prop))
+      })
+    }
+  }
+
+  _flattenSearch(searchResult, [])
+
+  return resultArray
 }
 
 function createOrAdd(object, key, value) {

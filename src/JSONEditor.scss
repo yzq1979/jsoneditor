@@ -15,6 +15,7 @@
     color: $white;
     display: flex;
     align-items: center;
+    position: relative;
 
     .button {
       width: 32px;
@@ -47,34 +48,18 @@
       margin: 5px;
     }
 
-    .search-box {
-      display: flex;
-      align-items: center;
-
-      .search-icon {
-        margin-right: $menu-padding;
-      }
-
-      .search-input {
-        border: none;
-        font-family: $font-family-menu;
-        font-size: $font-size;
-        padding: $input-padding;
-        margin-right: 2px;
-      }
+    .search-box-container {
+      position: absolute;
+      top: 100%;
+      right: $search-box-offset + 20px; // keep space for scrollbar
+      margin-top: $search-box-offset;
+      z-index: 1;
     }
   }
   
   .contents {
     flex: 1;
     overflow: auto;
-    position: relative;
-
-    .search {
-      position: absolute;
-      top: $search-box-offset;
-      right: $search-box-offset;
-    }
 
     .bottom {
       height: $input-padding;

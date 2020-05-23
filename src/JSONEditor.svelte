@@ -4,9 +4,11 @@
   import { faSearch, faUndo, faRedo } from '@fortawesome/free-solid-svg-icons'
   import { createHistory } from './history.js'
   import Node from './JSONNode.svelte'
+  import { existsIn, setIn } from './utils/immutabilityHelpers.js'
   import { keyComboFromEvent } from './utils/keyBindings.js'
-  import { search } from './utils/search.js'
+  import { flattenSearch, search } from './utils/search.js'
   import { immutableJSONPatch } from './utils/immutableJSONPatch'
+  import { isEqual } from 'lodash'
 
   export let json = {}
   export let onChangeJson = () => {
@@ -62,7 +64,35 @@
     return result
   }
 
+  // TODO: refactor the search solution, it's too complex. Also, move it in a separate component
+  let searchResult
+  let activeSearchResult = undefined
+  let activeSearchResultIndex
+  let flatSearchResult
+  let searchResultWithActive
   $: searchResult = searchText ? doSearch(json, searchText) : undefined
+  $: flatSearchResult = flattenSearch(searchResult)
+
+  $: {
+    if (!activeSearchResult || !existsIn(searchResult, activeSearchResult.path.concat(activeSearchResult.what))) {
+      activeSearchResult = flatSearchResult[0]
+    }
+  }
+
+  $: activeSearchResultIndex = flatSearchResult.findIndex(item => isEqual(item, activeSearchResult))
+  $: searchResultWithActive = searchResult
+      ? activeSearchResult
+        ? setIn(searchResult, activeSearchResult.path.concat(activeSearchResult.what), 'search active')
+        : searchResult
+      : undefined
+
+  function nextSearchResult () {
+    activeSearchResult = flatSearchResult[activeSearchResultIndex + 1] || activeSearchResult
+  }
+
+  function previousSearchResult () {
+    activeSearchResult = flatSearchResult[activeSearchResultIndex - 1] || activeSearchResult
+  }
 
   function handleChangeKey(key, oldKey) {
     // console.log('handleChangeKey', { key, oldKey })
@@ -178,26 +208,33 @@
       <Icon data={faRedo} />
     </button>
     <div class="space"></div>
+    {#if showSearch}
+      <div class="search-box-container">
+        <SearchBox
+          text={searchText}
+          resultCount={flatSearchResult.length}
+          activeIndex={activeSearchResultIndex}
+          onChange={(text) => searchText = text}
+          onNext={nextSearchResult}
+          onPrevious={previousSearchResult}
+          onClose={() => {
+            showSearch = false
+            searchText = ''
+          }}
+        />
+      </div>
+    {/if}
   </div>
   <div class="contents">
     <Node
       value={json}
-      searchResult={searchResult}
+      searchResult={searchResultWithActive}
       expanded={true}
       onChangeKey={handleChangeKey}
       onPatch={handlePatch}
       getParentPath={getPath}
     />
     <div class='bottom'></div>
-    {#if showSearch}
-      <div class="search">
-        <SearchBox
-          text={searchText}
-          onChange={text => searchText = text}
-          onClose={() => showSearch = false}
-        />
-      </div>
-    {/if}
   </div>
 </div>
 

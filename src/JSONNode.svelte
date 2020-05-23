@@ -80,21 +80,15 @@
   function getValueClass (value, searchResult) {
     const type = valueType (value)
 
-    return classnames('value', type, {
+    return classnames('value', type, searchResult && searchResult[SEARCH_VALUE], {
       url: isUrl(value),
       empty: typeof value === 'string' && value.length === 0,
-      search: searchResult
-        ? !!searchResult[SEARCH_VALUE]
-        : false
     })
   }
 
   function getKeyClass(key, searchResult) {
-    return classnames('key', {
-      empty: key === '',
-      search: searchResult
-        ? !!searchResult[SEARCH_PROPERTY]
-        : false
+    return classnames('key', searchResult && searchResult[SEARCH_PROPERTY], {
+      empty: key === ''
     })
   }
 
