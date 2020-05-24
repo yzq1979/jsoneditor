@@ -233,6 +233,7 @@
       {#if typeof key === 'string'}
         <div
           class={keyClass}
+          data-path={compileJSONPointer(getPath().concat(SEARCH_PROPERTY))}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -285,6 +286,7 @@
       {#if typeof key === 'string'}
         <div
           class={keyClass}
+          data-path={compileJSONPointer(getPath().concat(SEARCH_PROPERTY))}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -325,6 +327,7 @@
       {#if typeof key === 'string'}
         <div
           class={keyClass}
+          data-path={compileJSONPointer(getPath().concat(SEARCH_PROPERTY))}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -335,6 +338,7 @@
       {/if}
       <div
         class={valueClass}
+        data-path={compileJSONPointer(getPath().concat(SEARCH_VALUE))}
         contenteditable="true"
         spellcheck="false"
         on:input={handleValueInput}

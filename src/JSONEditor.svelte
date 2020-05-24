@@ -1,25 +1,32 @@
 <script>
-  import { EXPANDED_PROPERTY } from './constants.js'
+  import { tick } from 'svelte'
+  import { EXPANDED_PROPERTY, SCROLL_DURATION } from './constants.js'
   import SearchBox from './SearchBox.svelte'
   import Icon from 'svelte-awesome'
   import { faSearch, faUndo, faRedo } from '@fortawesome/free-solid-svg-icons'
   import { createHistory } from './history.js'
   import Node from './JSONNode.svelte'
   import { existsIn, setIn } from './utils/immutabilityHelpers.js'
+  import { compileJSONPointer } from './utils/jsonPointer.js'
   import { keyComboFromEvent } from './utils/keyBindings.js'
   import { flattenSearch, search } from './utils/search.js'
   import { immutableJSONPatch } from './utils/immutableJSONPatch'
-  import { isEqual } from 'lodash'
+  import { isEqual } from 'lodash-es'
+  import jump from './assets/jump.js/src/jump.js'
+
+  let divContents
 
   export let json = {}
   export let onChangeJson = () => {
   }
 
-  let state = {
+  const INITIAL_STATE = {
     [EXPANDED_PROPERTY]: true
   }
 
-  let showSearch = true // FIXME: change to false
+  let state = INITIAL_STATE
+
+  let showSearch = false
   let searchText = ''
 
   const history = createHistory({
@@ -35,6 +42,7 @@
 
   export function set(newJson) {
     json = newJson
+    state = INITIAL_STATE
     history.clear()
   }
 
@@ -72,13 +80,10 @@
   }
 
   function doSearch(json, searchText) {
-    console.time('search')
-    const result = search(null, json, searchText)
-    console.timeEnd('search')
-    return result
+    return search(null, json, searchText)
   }
 
-  // TODO: refactor the search solution, it's too complex. Also, move it in a separate component
+  // TODO: refactor the search solution and move it in a separate component
   let searchResult
   let activeSearchResult = undefined
   let activeSearchResultIndex
@@ -90,6 +95,7 @@
   $: {
     if (!activeSearchResult || !existsIn(searchResult, activeSearchResult.path.concat(activeSearchResult.what))) {
       activeSearchResult = flatSearchResult[0]
+      focusActiveSearchResult()
     }
   }
 
@@ -102,11 +108,41 @@
 
   function nextSearchResult () {
     activeSearchResult = flatSearchResult[activeSearchResultIndex + 1] || activeSearchResult
+    focusActiveSearchResult()
   }
 
   function previousSearchResult () {
     activeSearchResult = flatSearchResult[activeSearchResultIndex - 1] || activeSearchResult
+    focusActiveSearchResult()
   }
+
+  async function focusActiveSearchResult () {
+    if (activeSearchResult) {
+      expandPath(activeSearchResult.path)
+
+      await tick()
+
+      scrollTo(activeSearchResult.path.concat(activeSearchResult.what))
+    }
+  }
+
+  /**
+   * Scroll the window vertically to the node with given path
+   * @param {Path} path
+   */
+  function scrollTo (path) {
+    const elem = divContents.querySelector(`div[data-path="${compileJSONPointer(path)}"]`)
+    const offset = -(divContents.getBoundingClientRect().height / 4)
+
+    if (elem) {
+      jump(elem, {
+        container: divContents,
+        offset,
+        duration: SCROLL_DURATION
+      })
+    }
+  }
+
 
   function handleChangeKey(key, oldKey) {
     // console.log('handleChangeKey', { key, oldKey })
@@ -160,6 +196,16 @@
    */
   function handleExpand (path, expanded) {
     state = setIn(state, path.concat(EXPANDED_PROPERTY), expanded)
+  }
+
+  /**
+   * Expand all nodes on given path
+   * @param {Path} path
+   */
+  function expandPath (path) {
+    for (let i = 1; i < path.length; i++) {
+      state = setIn(state, path.slice(0, i).concat(EXPANDED_PROPERTY), true)
+    }
   }
 
   function handleKeyDown (event) {
@@ -248,7 +294,7 @@
       </div>
     {/if}
   </div>
-  <div class="contents">
+  <div class="contents" bind:this={divContents}>
     <Node
       value={json}
       state={state}

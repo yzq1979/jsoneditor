@@ -29,7 +29,7 @@
 			color: purple;
 		}
 
-		#testEditor {
+		#testEditorContainer {
 			width: 800px;
 			height: 500px;
 			max-width: 100%;
@@ -38,7 +38,7 @@
 </head>
 
 <body>
-	<div id="testEditor"></div>
+	<div id="testEditorContainer"></div>
 	<p>
 		<button id="loadLargeJson">load large json</button>
 		<button id="clearJson">clear json</button>
@@ -85,12 +85,13 @@
 		}
 
 		const testEditor = jsoneditor({
-			target: document.getElementById('testEditor'),
+			target: document.getElementById('testEditorContainer'),
 			props: {
 				json,
 				onChangeJson: json => console.log('onChangeJson', json)
 			}
 		})
+		window.testEditor = testEditor // expose to window for debugging
 
 		document.getElementById('loadLargeJson').onclick = function handleLoadLargeJson() {
 			const count = 500

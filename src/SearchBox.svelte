@@ -1,5 +1,5 @@
 <script>
-  import { debounce } from 'lodash'
+  import { debounce } from 'lodash-es'
   import Icon from 'svelte-awesome'
   import { faSearch, faChevronDown, faChevronUp, faTimes } from '@fortawesome/free-solid-svg-icons'
   import { keyComboFromEvent } from './utils/keyBindings.js'
