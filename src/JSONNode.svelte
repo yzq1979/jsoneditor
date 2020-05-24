@@ -16,21 +16,14 @@
 
   export let key = undefined // only applicable for object properties
   export let value
+  export let path
   export let state
   export let searchResult
   export let onPatch
   export let onChangeKey
   export let onExpand
 
-  export let getParentPath
-
   $: expanded = state && state[EXPANDED_PROPERTY]
-
-  function getPath () {
-    return key !== undefined
-      ? getParentPath().concat(key)
-      : []
-  }
 
   const DEBOUNCE_DELAY = 300 // milliseconds TODO: make the debounce delay configurable?
   const DEFAULT_LIMIT = 100
@@ -100,7 +93,7 @@
   }
 
   function toggle () {
-    onExpand(getPath(), !expanded)
+    onExpand(path, !expanded)
   }
 
   function updateKey () {
@@ -140,7 +133,7 @@
 
     onPatch([{
       op: 'replace',
-      path: compileJSONPointer(getPath()),
+      path: compileJSONPointer(path),
       value: newValue
     }])
   }
@@ -205,7 +198,6 @@
           })
         }
 
-        const path = getPath()
         onPatch([{
           op: 'move',
           from: compileJSONPointer(path.concat(oldChildKey)),
@@ -233,7 +225,7 @@
       {#if typeof key === 'string'}
         <div
           class={keyClass}
-          data-path={compileJSONPointer(getPath().concat(SEARCH_PROPERTY))}
+          data-path={compileJSONPointer(path.concat(SEARCH_PROPERTY))}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -246,7 +238,7 @@
         <div class="delimiter">[</div>
       {:else}
         <div class="delimiter">[</div>
-        <button class="tag" on:click={() => onExpand(getPath(), true)}>{value.length} items</button>
+        <button class="tag" on:click={() => onExpand(path, true)}>{value.length} items</button>
         <div class="delimiter">]</div>
       {/if}
     </div>
@@ -256,12 +248,12 @@
           <svelte:self
             key={index}
             value={item}
+            path={path.concat(index)}
             state={state && state[index]}
             searchResult={searchResult ? searchResult[index] : undefined}
             onChangeKey={handleChangeKey}
             onPatch={onPatch}
             onExpand={onExpand}
-            getParentPath={getPath}
           />
         {/each}
         {#if limited}
@@ -286,7 +278,7 @@
       {#if typeof key === 'string'}
         <div
           class={keyClass}
-          data-path={compileJSONPointer(getPath().concat(SEARCH_PROPERTY))}
+          data-path={compileJSONPointer(path.concat(SEARCH_PROPERTY))}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -299,7 +291,7 @@
         <span class="delimiter">&#123;</span>
       {:else}
         <span class="delimiter"> &#123;</span>
-        <button class="tag" on:click={() => onExpand(getPath(), true)}>{props.length} props</button>
+        <button class="tag" on:click={() => onExpand(path, true)}>{props.length} props</button>
         <span class="delimiter">}</span>
       {/if}
     </div>
@@ -309,12 +301,12 @@
           <svelte:self
             key={prop.key}
             value={value[prop.key]}
+            path={path.concat(prop.key)}
             state={state && state[prop.key]}
             searchResult={searchResult ? searchResult[prop.key] : undefined}
             onChangeKey={handleChangeKey}
             onPatch={onPatch}
             onExpand={onExpand}
-            getParentPath={getPath}
           />
         {/each}
       </div>
@@ -327,7 +319,7 @@
       {#if typeof key === 'string'}
         <div
           class={keyClass}
-          data-path={compileJSONPointer(getPath().concat(SEARCH_PROPERTY))}
+          data-path={compileJSONPointer(path.concat(SEARCH_PROPERTY))}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -338,7 +330,7 @@
       {/if}
       <div
         class={valueClass}
-        data-path={compileJSONPointer(getPath().concat(SEARCH_VALUE))}
+        data-path={compileJSONPointer(path.concat(SEARCH_VALUE))}
         contenteditable="true"
         spellcheck="false"
         on:input={handleValueInput}

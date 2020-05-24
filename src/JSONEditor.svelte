@@ -75,10 +75,6 @@
     }
   }
 
-  function getPath() {
-    return []
-  }
-
   function doSearch(json, searchText) {
     return search(null, json, searchText)
   }
@@ -297,12 +293,12 @@
   <div class="contents" bind:this={divContents}>
     <Node
       value={json}
+      path={[]}
       state={state}
       searchResult={searchResultWithActive}
       onChangeKey={handleChangeKey}
       onPatch={handlePatch}
       onExpand={handleExpand}
-      getParentPath={getPath}
     />
     <div class='bottom'></div>
   </div>
