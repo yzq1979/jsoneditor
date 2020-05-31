@@ -1,3 +1,4 @@
+import { isNumber } from 'lodash-es'
 import { SEARCH_PROPERTY, SEARCH_VALUE } from '../constants.js'
 import { valueType } from './typeUtils.js'
 
@@ -53,7 +54,7 @@ export function flattenSearch (searchResult) {
 
     const type = valueType(value)
     if (type === 'array') {
-      searchResult.forEach((item, index) => {
+      value.forEach((item, index) => {
         _flattenSearch(item, path.concat(index))
       })
     } else if (type === 'object') {
@@ -73,8 +74,14 @@ function createOrAdd(object, key, value) {
     object[key] = value
     return object
   } else {
-    return {
-      [key]: value
+    if (isNumber(key)) {
+      const array = []
+      array[key] = value
+      return array
+    } else {
+      return {
+        [key]: value
+      }
     }
   }
 }

@@ -1,6 +1,7 @@
 <script>
   import {
-    EXPANDED_PROPERTY,
+    DEBOUNCE_DELAY, DEFAULT_LIMIT,
+    EXPANDED_PROPERTY, LIMIT_PROPERTY,
     SEARCH_PROPERTY,
     SEARCH_VALUE
   } from './constants.js'
@@ -22,14 +23,12 @@
   export let onPatch
   export let onChangeKey
   export let onExpand
+  export let onLimit
 
   $: expanded = state && state[EXPANDED_PROPERTY]
+  $: limit = state && state[LIMIT_PROPERTY] || DEFAULT_LIMIT
 
-  const DEBOUNCE_DELAY = 300 // milliseconds TODO: make the debounce delay configurable?
-  const DEFAULT_LIMIT = 100
   const escapeUnicode = false // TODO: pass via options
-
-  let limit = DEFAULT_LIMIT
 
   let domKey 
   let domValue
@@ -208,7 +207,7 @@
   }
 
   function handleShowAll () {
-    limit = Infinity
+    onLimit(path, Infinity)
   }
 </script>
 
@@ -254,6 +253,7 @@
             onChangeKey={handleChangeKey}
             onPatch={onPatch}
             onExpand={onExpand}
+            onLimit={onLimit}
           />
         {/each}
         {#if limited}
@@ -307,6 +307,7 @@
             onChangeKey={handleChangeKey}
             onPatch={onPatch}
             onExpand={onExpand}
+            onLimit={onLimit}
           />
         {/each}
       </div>

@@ -2,9 +2,8 @@
   import { debounce } from 'lodash-es'
   import Icon from 'svelte-awesome'
   import { faSearch, faChevronDown, faChevronUp, faTimes } from '@fortawesome/free-solid-svg-icons'
+  import { DEBOUNCE_DELAY } from './constants.js'
   import { keyComboFromEvent } from './utils/keyBindings.js'
-
-  const DEBOUNCE_DELAY = 300 // milliseconds TODO: make the debounce delay configurable?
 
   export let text = ''
   let inputText = ''

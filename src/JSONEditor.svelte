@@ -1,17 +1,22 @@
 <script>
   import { tick } from 'svelte'
-  import { EXPANDED_PROPERTY, SCROLL_DURATION } from './constants.js'
+  import {
+    DEFAULT_LIMIT,
+    EXPANDED_PROPERTY,
+    LIMIT_PROPERTY,
+    SCROLL_DURATION
+  } from './constants.js'
   import SearchBox from './SearchBox.svelte'
   import Icon from 'svelte-awesome'
   import { faSearch, faUndo, faRedo } from '@fortawesome/free-solid-svg-icons'
   import { createHistory } from './history.js'
   import Node from './JSONNode.svelte'
-  import { existsIn, setIn } from './utils/immutabilityHelpers.js'
+  import { existsIn, getIn, setIn } from './utils/immutabilityHelpers.js'
   import { compileJSONPointer } from './utils/jsonPointer.js'
   import { keyComboFromEvent } from './utils/keyBindings.js'
   import { flattenSearch, search } from './utils/search.js'
   import { immutableJSONPatch } from './utils/immutableJSONPatch'
-  import { isEqual } from 'lodash-es'
+  import { isEqual, isNumber } from 'lodash-es'
   import jump from './assets/jump.js/src/jump.js'
 
   let divContents
@@ -195,12 +200,32 @@
   }
 
   /**
+   * Change limit
+   * @param {Path} path
+   * @param {boolean} limit
+   */
+  function handleLimit (path, limit) {
+    state = setIn(state, path.concat(LIMIT_PROPERTY), limit)
+  }
+
+  /**
    * Expand all nodes on given path
    * @param {Path} path
    */
   function expandPath (path) {
     for (let i = 1; i < path.length; i++) {
-      state = setIn(state, path.slice(0, i).concat(EXPANDED_PROPERTY), true)
+      const partialPath = path.slice(0, i)
+      state = setIn(state, partialPath.concat(EXPANDED_PROPERTY), true)
+
+      // if needed, enlarge the limit such that the search result becomes visible
+      const key = path[i]
+      if (isNumber(key)) {
+        const limit = getIn(state, partialPath.concat(LIMIT_PROPERTY)) || DEFAULT_LIMIT
+        if (key > limit) {
+          const newLimit = Math.ceil(key / DEFAULT_LIMIT) * DEFAULT_LIMIT
+          state = setIn(state, partialPath.concat(LIMIT_PROPERTY), newLimit)
+        }
+      }
     }
   }
 
@@ -299,6 +324,7 @@
       onChangeKey={handleChangeKey}
       onPatch={handlePatch}
       onExpand={handleExpand}
+      onLimit={handleLimit}
     />
     <div class='bottom'></div>
   </div>
