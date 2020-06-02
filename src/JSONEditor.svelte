@@ -59,7 +59,7 @@
     state = syncState(doc, state, [], callback, true)
   }
 
-  export function collapse (doCollapse = () => false) {
+  export function collapse (callback = () => false) {
     state = syncState(doc, state, [], callback, true)
   }
 
