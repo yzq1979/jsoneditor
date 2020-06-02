@@ -1,7 +1,9 @@
 <script>
+  import { isObject } from 'lodash-es'
+  import { onMount } from 'svelte'
   import {
     DEBOUNCE_DELAY, DEFAULT_LIMIT,
-    STATE_EXPANDED, STATE_LIMIT,
+    STATE_EXPANDED, STATE_LIMIT, STATE_PROPS,
     STATE_SEARCH_PROPERTY,
     STATE_SEARCH_VALUE
   } from './constants.js'
@@ -24,9 +26,11 @@
   export let onChangeKey
   export let onExpand
   export let onLimit
+  export let onUpdateProps
 
   $: expanded = state && state[STATE_EXPANDED]
   $: limit = state && state[STATE_LIMIT] || DEFAULT_LIMIT
+  $: props = state && state[STATE_PROPS] || []
 
   const escapeUnicode = false // TODO: pass via options
 
@@ -36,13 +40,15 @@
   $: type = valueType (value)
 
   let prevValue = undefined
-  let props = undefined
+  // let props = undefined
 
-  $: if (value !== prevValue) {
+  $: if (isObject(value) && value !== prevValue) {
     prevValue = value
-
-    props = updateProps(value, props)
+    const updatedProps = updateProps(value, props)
+    onUpdateProps(path, updatedProps)
   }
+
+  // $: console.log('props', props)
 
   $: limited = type === 'array' && value.length > limit
 
@@ -254,6 +260,7 @@
             onPatch={onPatch}
             onExpand={onExpand}
             onLimit={onLimit}
+            onUpdateProps={onUpdateProps}
           />
         {/each}
         {#if limited}
@@ -308,6 +315,7 @@
             onPatch={onPatch}
             onExpand={onExpand}
             onLimit={onLimit}
+            onUpdateProps={onUpdateProps}
           />
         {/each}
       </div>

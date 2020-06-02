@@ -1,10 +1,10 @@
 <script>
-  import { tick } from 'svelte'
+  import { tick, beforeUpdate, afterUpdate } from 'svelte'
   import {
     DEFAULT_LIMIT,
     STATE_EXPANDED,
     STATE_LIMIT,
-    SCROLL_DURATION
+    SCROLL_DURATION, STATE_PROPS
   } from './constants.js'
   import SearchBox from './SearchBox.svelte'
   import Icon from 'svelte-awesome'
@@ -20,6 +20,13 @@
   import jump from './assets/jump.js/src/jump.js'
 
   let divContents
+
+  beforeUpdate(() => {
+    console.time('render')
+  })
+  afterUpdate(() => {
+    console.timeEnd('render')
+  })
 
   export let json = {}
   export let onChangeJson = () => {
@@ -209,6 +216,15 @@
   }
 
   /**
+   * Update object properties
+   * @param {Path} path
+   * @param {Object} props
+   */
+  function handleUpdateProps (path, props) {
+    state = setIn(state, path.concat(STATE_PROPS), props)
+  }
+
+  /**
    * Expand all nodes on given path
    * @param {Path} path
    */
@@ -325,6 +341,7 @@
       onPatch={handlePatch}
       onExpand={handleExpand}
       onLimit={handleLimit}
+      onUpdateProps={handleUpdateProps}
     />
     <div class='bottom'></div>
   </div>
