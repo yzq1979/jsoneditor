@@ -82,8 +82,9 @@
     })
   }
 
-  function toggle () {
-    onExpand(path, !expanded)
+  function toggleExpand (event) {
+    const recursive = event.ctrlKey
+    onExpand(path, !expanded, recursive)
   }
 
   function updateKey () {
@@ -182,7 +183,7 @@
 <div class='json-node'>
   {#if type === 'array'}
     <div class='header'>
-      <button class='expand' on:click={toggle}>
+      <button class='expand' on:click={toggleExpand}>
         {#if expanded}
           <Icon data={faCaretDown} />
         {:else}
@@ -235,7 +236,7 @@
     {/if}
   {:else if type === 'object'}
     <div class='header'>
-      <button class='expand' on:click={toggle}>
+      <button class='expand' on:click={toggleExpand}>
         {#if expanded}
           <Icon data={faCaretDown} />
         {:else}

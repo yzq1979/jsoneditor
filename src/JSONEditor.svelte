@@ -11,7 +11,12 @@
   import { faSearch, faUndo, faRedo } from '@fortawesome/free-solid-svg-icons'
   import { createHistory } from './history.js'
   import Node from './JSONNode.svelte'
-  import { existsIn, getIn, setIn } from './utils/immutabilityHelpers.js'
+  import {
+    existsIn,
+    getIn,
+    setIn,
+    updateIn
+  } from './utils/immutabilityHelpers.js'
   import { compileJSONPointer, parseJSONPointer } from './utils/jsonPointer.js'
   import { keyComboFromEvent } from './utils/keyBindings.js'
   import { flattenSearch, search } from './utils/search.js'
@@ -53,6 +58,14 @@
     }
   })
   let historyState = history.getState()
+
+  export function expandAll () {
+    state = syncState(doc, state, [], () => true, true)
+  }
+
+  export function collapseAll () {
+    state = syncState(doc, state, [], () => false, true)
+  }
 
   export function get() {
     return doc
@@ -227,10 +240,16 @@
    * Toggle expanded state of a node
    * @param {Path} path
    * @param {boolean} expanded
+   * @param {boolean} [recursive=false]
    */
-  function handleExpand (path, expanded) {
-    console.log('handleExpand', path, expanded)
-    state = setIn(state, path.concat(STATE_EXPANDED), expanded)
+  function handleExpand (path, expanded, recursive = false) {
+    if (recursive) {
+      state = updateIn(state, path, (childState) => {
+        return syncState(getIn(doc, path), childState, [], () => expanded, true)
+      })
+    } else {
+      state = setIn(state, path.concat(STATE_EXPANDED), expanded)
+    }
   }
 
   /**
