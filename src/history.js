@@ -2,7 +2,7 @@
 const MAX_HISTORY_ITEMS = 1000
 
 /**
- * @typedef {Object} HistoryItem
+ * @typedef {*} HistoryItem
  * @property {Object} undo
  * @property {Object} redo
  */

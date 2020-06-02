@@ -1,3 +1,4 @@
+import { STATE_EXPANDED, STATE_LIMIT } from '../constants.js'
 import { isObjectOrArray } from  './typeUtils.js'
 
 /**
@@ -19,7 +20,17 @@ import { isObjectOrArray } from  './typeUtils.js'
 export function shallowClone (value) {
   if (Array.isArray(value)) {
     // copy array items
-    return value.slice()
+    const copy = value.slice()
+
+    // FIXME: this is very ugly hack to copy properties attached to an Array!
+    if (value[STATE_EXPANDED] !== undefined) {
+      copy[STATE_EXPANDED] = value[STATE_EXPANDED]
+    }
+    if (value[STATE_LIMIT] !== undefined) {
+      copy[STATE_LIMIT] = value[STATE_LIMIT]
+    }
+
+    return copy
   }
   else if (typeof value === 'object') {
     // copy object properties

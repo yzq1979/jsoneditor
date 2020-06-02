@@ -1,6 +1,5 @@
 <script>
-  import { isObject } from 'lodash-es'
-  import { onMount } from 'svelte'
+  import { debounce } from 'lodash-es'
   import {
     DEBOUNCE_DELAY, DEFAULT_LIMIT,
     STATE_EXPANDED, STATE_LIMIT, STATE_PROPS,
@@ -11,7 +10,6 @@
   import Icon from 'svelte-awesome'
   import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons'
   import classnames from 'classnames'
-  import debounce from 'lodash/debounce'
   import { findUniqueName } from './utils/stringUtils.js'
   import { isUrl, stringConvert, valueType } from './utils/typeUtils'
   import { updateProps } from './utils/updateProps.js'
@@ -26,11 +24,10 @@
   export let onChangeKey
   export let onExpand
   export let onLimit
-  export let onUpdateProps
 
   $: expanded = state && state[STATE_EXPANDED]
-  $: limit = state && state[STATE_LIMIT] || DEFAULT_LIMIT
-  $: props = state && state[STATE_PROPS] || []
+  $: limit = state && state[STATE_LIMIT]
+  $: props = state && state[STATE_PROPS]
 
   const escapeUnicode = false // TODO: pass via options
 
@@ -38,17 +35,6 @@
   let domValue
 
   $: type = valueType (value)
-
-  let prevValue = undefined
-  // let props = undefined
-
-  $: if (isObject(value) && value !== prevValue) {
-    prevValue = value
-    const updatedProps = updateProps(value, props)
-    onUpdateProps(path, updatedProps)
-  }
-
-  // $: console.log('props', props)
 
   $: limited = type === 'array' && value.length > limit
 
@@ -183,6 +169,7 @@
     }
   }
 
+  // TODO: can we do a handleChangeKey in the child again?
   function handleChangeKey (newChildKey, oldChildKey) {
     if (type === 'object') {
       // make sure the key is not a duplicate of an other property
@@ -190,18 +177,18 @@
 
       if (uniqueNewChildKey !== oldChildKey) {
         // we need to make sure that the renamed property will keep the same id
-        const index = props.findIndex(item => item.key === oldChildKey)
-        if (index !== -1) {
-          // we use splice here to replace the old key with the new new one
-          // already without Svelte noticing it (no assignment), so we prevent
-          // a needless render. We keep the same id, so the child HTML will be
-          // reused
-          // TODO: is there a better way to do this?
-          props.splice(index, 1, {
-            id: props[index].id,
-            key: uniqueNewChildKey
-          })
-        }
+        // const index = props.findIndex(item => item.key === oldChildKey)
+        // if (index !== -1) {
+        //   // we use splice here to replace the old key with the new new one
+        //   // already without Svelte noticing it (no assignment), so we prevent
+        //   // a needless render. We keep the same id, so the child HTML will be
+        //   // reused
+        //   // TODO: is there a better way to do this?
+        //   props.splice(index, 1, {
+        //     id: props[index].id,
+        //     key: uniqueNewChildKey
+        //   })
+        // }
 
         onPatch([{
           op: 'move',
@@ -260,7 +247,6 @@
             onPatch={onPatch}
             onExpand={onExpand}
             onLimit={onLimit}
-            onUpdateProps={onUpdateProps}
           />
         {/each}
         {#if limited}
@@ -298,7 +284,7 @@
         <span class="delimiter">&#123;</span>
       {:else}
         <span class="delimiter"> &#123;</span>
-        <button class="tag" on:click={() => onExpand(path, true)}>{props.length} props</button>
+        <button class="tag" on:click={() => onExpand(path, true)}>{Object.keys(value).length} props</button>
         <span class="delimiter">}</span>
       {/if}
     </div>
@@ -315,7 +301,6 @@
             onPatch={onPatch}
             onExpand={onExpand}
             onLimit={onLimit}
-            onUpdateProps={onUpdateProps}
           />
         {/each}
       </div>

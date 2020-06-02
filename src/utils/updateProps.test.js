@@ -9,7 +9,6 @@ test('updateProps (1)', () => {
 
   const props2 = updateProps({a: 1, b: 2}, props1)
   expect(props2.map(item => item.key)).toEqual(['b', 'a'])
-  expect(props2[0].id).toEqual('1')
 })
 
 test('updateProps (2)', () => {

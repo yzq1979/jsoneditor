@@ -12,12 +12,13 @@
   import { createHistory } from './history.js'
   import Node from './JSONNode.svelte'
   import { existsIn, getIn, setIn } from './utils/immutabilityHelpers.js'
-  import { compileJSONPointer } from './utils/jsonPointer.js'
+  import { compileJSONPointer, parseJSONPointer } from './utils/jsonPointer.js'
   import { keyComboFromEvent } from './utils/keyBindings.js'
   import { flattenSearch, search } from './utils/search.js'
   import { immutableJSONPatch } from './utils/immutableJSONPatch'
-  import { isEqual, isNumber } from 'lodash-es'
+  import { isEqual, isNumber, initial, last } from 'lodash-es'
   import jump from './assets/jump.js/src/jump.js'
+  import { syncState } from './utils/syncState.js'
 
   let divContents
 
@@ -28,15 +29,20 @@
     console.timeEnd('render')
   })
 
-  export let json = {}
-  export let onChangeJson = () => {
+  export let json = {} // TODO: rename 'json' to 'document'
+  export let onChangeJson = () => {}
+
+  function expand (path) {
+    return path.length < 1
   }
 
-  const INITIAL_STATE = {
-    [STATE_EXPANDED]: true
-  }
+  let state
 
-  let state = INITIAL_STATE
+  $: {
+    console.time('syncState')
+    state = syncState(json, state, [], expand)
+    console.timeEnd('syncState')
+  }
 
   let showSearch = false
   let searchText = ''
@@ -54,36 +60,82 @@
 
   export function set(newJson) {
     json = newJson
-    state = INITIAL_STATE
+    state = undefined
     history.clear()
   }
 
-  function applyPatch (operations) {
-    const patchResult = immutableJSONPatch(json, operations)
-    json = patchResult.json
-
-    state = immutableJSONPatch(state, operations).json
-
-    return patchResult
-  }
-
   export function patch(operations) {
-    console.log('patch', operations)
+    const prevState = state
 
-    const patchResult = applyPatch(operations)
+    const documentPatchResult = immutableJSONPatch(json, operations)
+    const statePatchResult = immutableJSONPatch(state, operations)
+    // TODO: only apply operations to state for relevant operations: move, copy, delete? Figure out
+
+    json = documentPatchResult.json
+    state = statePatchResult.json
+
+    // if a property is renamed (move operation), rename it in the object's props
+    // so it maintains its identity and hence its index
+    operations
+      .filter(operation => {
+        return operation.op === 'move' && isEqual(
+          initial(parseJSONPointer(operation.from)),
+          initial(parseJSONPointer(operation.path))
+        )
+      })
+      .forEach(operation => {
+        const pathFrom = parseJSONPointer(operation.from)
+        const to = parseJSONPointer(operation.path)
+        const parentPath = initial(pathFrom)
+        const oldKey = last(pathFrom)
+        const newKey = last(to)
+        const props = getIn(state, parentPath.concat(STATE_PROPS))
+        const index = props.findIndex(item => item.key === oldKey)
+        if (index !== -1) {
+          state = setIn(state, parentPath.concat([STATE_PROPS, index, 'key']), newKey)
+        }
+      })
 
     history.add({
-      undo: patchResult.revert,
-      redo: operations
+      undo: documentPatchResult.revert,
+      redo: operations,
+      prevState: prevState,
+      state: state
     })
-
-    json = patchResult.json
 
     return {
       json,
-      error: patchResult.error,
-      undo: patchResult.revert,
+      error: documentPatchResult.error,
+      undo: documentPatchResult.revert,
       redo: operations
+    }
+  }
+
+  function handleUndo() {
+    if (history.getState().canUndo) {
+      const item = history.undo()
+      if (item) {
+        json = immutableJSONPatch(json, item.undo).json
+        state = item.prevState
+
+        console.log('undo', { item,  json, state })
+
+        emitOnChange()
+      }
+    }
+  }
+
+  function handleRedo() {
+    if (history.getState().canRedo) {
+      const item = history.redo()
+      if (item) {
+        json = immutableJSONPatch(json, item.redo).json
+        state = item.state
+
+        console.log('redo', { item,  json, state })
+
+        emitOnChange()
+      }
     }
   }
 
@@ -177,32 +229,13 @@
     showSearch = !showSearch
   }
 
-  function handleUndo() {
-    if (history.getState().canUndo) {
-      const item = history.undo()
-      if (item) {
-        applyPatch(item.undo)
-        emitOnChange()
-      }
-    }
-  }
-
-  function handleRedo() {
-    if (history.getState().canRedo) {
-      const item = history.redo()
-      if (item) {
-        applyPatch(item.redo)
-        emitOnChange()
-      }
-    }
-  }
-
   /**
    * Toggle expanded state of a node
    * @param {Path} path
    * @param {boolean} expanded
    */
   function handleExpand (path, expanded) {
+    console.log('handleExpand', path, expanded)
     state = setIn(state, path.concat(STATE_EXPANDED), expanded)
   }
 
@@ -213,15 +246,6 @@
    */
   function handleLimit (path, limit) {
     state = setIn(state, path.concat(STATE_LIMIT), limit)
-  }
-
-  /**
-   * Update object properties
-   * @param {Path} path
-   * @param {Object} props
-   */
-  function handleUpdateProps (path, props) {
-    state = setIn(state, path.concat(STATE_PROPS), props)
   }
 
   /**
@@ -341,7 +365,6 @@
       onPatch={handlePatch}
       onExpand={handleExpand}
       onLimit={handleLimit}
-      onUpdateProps={handleUpdateProps}
     />
     <div class='bottom'></div>
   </div>
