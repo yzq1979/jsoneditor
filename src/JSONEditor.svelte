@@ -2,8 +2,8 @@
   import { tick } from 'svelte'
   import {
     DEFAULT_LIMIT,
-    EXPANDED_PROPERTY,
-    LIMIT_PROPERTY,
+    STATE_EXPANDED,
+    STATE_LIMIT,
     SCROLL_DURATION
   } from './constants.js'
   import SearchBox from './SearchBox.svelte'
@@ -26,7 +26,7 @@
   }
 
   const INITIAL_STATE = {
-    [EXPANDED_PROPERTY]: true
+    [STATE_EXPANDED]: true
   }
 
   let state = INITIAL_STATE
@@ -196,7 +196,7 @@
    * @param {boolean} expanded
    */
   function handleExpand (path, expanded) {
-    state = setIn(state, path.concat(EXPANDED_PROPERTY), expanded)
+    state = setIn(state, path.concat(STATE_EXPANDED), expanded)
   }
 
   /**
@@ -205,7 +205,7 @@
    * @param {boolean} limit
    */
   function handleLimit (path, limit) {
-    state = setIn(state, path.concat(LIMIT_PROPERTY), limit)
+    state = setIn(state, path.concat(STATE_LIMIT), limit)
   }
 
   /**
@@ -215,15 +215,15 @@
   function expandPath (path) {
     for (let i = 1; i < path.length; i++) {
       const partialPath = path.slice(0, i)
-      state = setIn(state, partialPath.concat(EXPANDED_PROPERTY), true)
+      state = setIn(state, partialPath.concat(STATE_EXPANDED), true)
 
       // if needed, enlarge the limit such that the search result becomes visible
       const key = path[i]
       if (isNumber(key)) {
-        const limit = getIn(state, partialPath.concat(LIMIT_PROPERTY)) || DEFAULT_LIMIT
+        const limit = getIn(state, partialPath.concat(STATE_LIMIT)) || DEFAULT_LIMIT
         if (key > limit) {
           const newLimit = Math.ceil(key / DEFAULT_LIMIT) * DEFAULT_LIMIT
-          state = setIn(state, partialPath.concat(LIMIT_PROPERTY), newLimit)
+          state = setIn(state, partialPath.concat(STATE_LIMIT), newLimit)
         }
       }
     }

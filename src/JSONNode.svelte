@@ -1,9 +1,9 @@
 <script>
   import {
     DEBOUNCE_DELAY, DEFAULT_LIMIT,
-    EXPANDED_PROPERTY, LIMIT_PROPERTY,
-    SEARCH_PROPERTY,
-    SEARCH_VALUE
+    STATE_EXPANDED, STATE_LIMIT,
+    STATE_SEARCH_PROPERTY,
+    STATE_SEARCH_VALUE
   } from './constants.js'
   import { getPlainText, setPlainText } from './utils/domUtils.js'
   import Icon from 'svelte-awesome'
@@ -25,8 +25,8 @@
   export let onExpand
   export let onLimit
 
-  $: expanded = state && state[EXPANDED_PROPERTY]
-  $: limit = state && state[LIMIT_PROPERTY] || DEFAULT_LIMIT
+  $: expanded = state && state[STATE_EXPANDED]
+  $: limit = state && state[STATE_LIMIT] || DEFAULT_LIMIT
 
   const escapeUnicode = false // TODO: pass via options
 
@@ -79,14 +79,14 @@
   function getValueClass (value, searchResult) {
     const type = valueType (value)
 
-    return classnames('value', type, searchResult && searchResult[SEARCH_VALUE], {
+    return classnames('value', type, searchResult && searchResult[STATE_SEARCH_VALUE], {
       url: isUrl(value),
       empty: typeof value === 'string' && value.length === 0,
     })
   }
 
   function getKeyClass(key, searchResult) {
-    return classnames('key', searchResult && searchResult[SEARCH_PROPERTY], {
+    return classnames('key', searchResult && searchResult[STATE_SEARCH_PROPERTY], {
       empty: key === ''
     })
   }
@@ -224,7 +224,7 @@
       {#if typeof key === 'string'}
         <div
           class={keyClass}
-          data-path={compileJSONPointer(path.concat(SEARCH_PROPERTY))}
+          data-path={compileJSONPointer(path.concat(STATE_SEARCH_PROPERTY))}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -278,7 +278,7 @@
       {#if typeof key === 'string'}
         <div
           class={keyClass}
-          data-path={compileJSONPointer(path.concat(SEARCH_PROPERTY))}
+          data-path={compileJSONPointer(path.concat(STATE_SEARCH_PROPERTY))}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -320,7 +320,7 @@
       {#if typeof key === 'string'}
         <div
           class={keyClass}
-          data-path={compileJSONPointer(path.concat(SEARCH_PROPERTY))}
+          data-path={compileJSONPointer(path.concat(STATE_SEARCH_PROPERTY))}
           contenteditable="true"
           spellcheck="false"
           on:input={handleKeyInput}
@@ -331,7 +331,7 @@
       {/if}
       <div
         class={valueClass}
-        data-path={compileJSONPointer(path.concat(SEARCH_VALUE))}
+        data-path={compileJSONPointer(path.concat(STATE_SEARCH_VALUE))}
         contenteditable="true"
         spellcheck="false"
         on:input={handleValueInput}

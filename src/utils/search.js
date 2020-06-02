@@ -1,12 +1,12 @@
 import { isNumber } from 'lodash-es'
-import { SEARCH_PROPERTY, SEARCH_VALUE } from '../constants.js'
+import { STATE_SEARCH_PROPERTY, STATE_SEARCH_VALUE } from '../constants.js'
 import { valueType } from './typeUtils.js'
 
 export function search (key, value, searchText) {
   let results = undefined
 
   if (typeof key === 'string' && containsCaseInsensitive(key, searchText)) {
-    results = createOrAdd(results, SEARCH_PROPERTY, 'search')
+    results = createOrAdd(results, STATE_SEARCH_PROPERTY, 'search')
   }
 
   const type = valueType(value)
@@ -26,7 +26,7 @@ export function search (key, value, searchText) {
     })
   } else { // type is a value
     if (containsCaseInsensitive(value, searchText)) {
-      results = createOrAdd(results, SEARCH_VALUE, 'search')
+      results = createOrAdd(results, STATE_SEARCH_VALUE, 'search')
     }
   }
 
@@ -38,15 +38,15 @@ export function flattenSearch (searchResult) {
 
   function _flattenSearch (value, path) {
     if (value) {
-      if (value[SEARCH_PROPERTY]) {
+      if (value[STATE_SEARCH_PROPERTY]) {
         resultArray.push({
-          what: SEARCH_PROPERTY,
+          what: STATE_SEARCH_PROPERTY,
           path
         })
       }
-      if (value[SEARCH_VALUE]) {
+      if (value[STATE_SEARCH_VALUE]) {
         resultArray.push({
-          what: SEARCH_VALUE,
+          what: STATE_SEARCH_VALUE,
           path
         })
       }

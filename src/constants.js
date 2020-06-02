@@ -1,8 +1,8 @@
 
-export const EXPANDED_PROPERTY = '$jse:expanded'
-export const LIMIT_PROPERTY = '$jse:limit'
-export const SEARCH_PROPERTY = '$jse:search:property'
-export const SEARCH_VALUE = '$jse:search:value'
+export const STATE_EXPANDED = '$jse:expanded'
+export const STATE_LIMIT = '$jse:limit'
+export const STATE_SEARCH_PROPERTY = '$jse:search:property'
+export const STATE_SEARCH_VALUE = '$jse:search:value'
 
 export const SCROLL_DURATION = 300 // ms
 export const DEBOUNCE_DELAY = 300
