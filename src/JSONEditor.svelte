@@ -39,13 +39,9 @@
 
   export let onChangeJson = () => {}
 
-  function expand (path) {
-    return path.length < 1
-  }
-
   $: {
     console.time('syncState')
-    state = syncState(doc, state, [], expand)
+    state = syncState(doc, state, [], (path) => path.length < 1)
     console.timeEnd('syncState')
   }
 
@@ -59,12 +55,12 @@
   })
   let historyState = history.getState()
 
-  export function expandAll () {
-    state = syncState(doc, state, [], () => true, true)
+  export function expand (callback = () => true) {
+    state = syncState(doc, state, [], callback, true)
   }
 
-  export function collapseAll () {
-    state = syncState(doc, state, [], () => false, true)
+  export function collapse (doCollapse = () => false) {
+    state = syncState(doc, state, [], callback, true)
   }
 
   export function get() {

@@ -47,6 +47,7 @@
 	</p>
 	<p>
 		<button id="expandAll">expand all</button>
+		<button id="expand2">expand 2 levels</button>
 		<button id="collapseAll">collapse all</button>
 	</p>
 
@@ -159,11 +160,15 @@
 		}
 
 		document.getElementById('expandAll').onclick = function expandAll () {
-			testEditor.expandAll()
+			testEditor.expand(() => true)
+		}
+
+		document.getElementById('expand2').onclick = function expandAll () {
+			testEditor.expand(path => path.length < 2)
 		}
 
 		document.getElementById('collapseAll').onclick = function collapseAll () {
-			testEditor.collapseAll()
+			testEditor.collapse(() => false)
 		}
 	</script>
 </body>
