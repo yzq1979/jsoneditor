@@ -183,7 +183,11 @@
 <div class='json-node'>
   {#if type === 'array'}
     <div class='header'>
-      <button class='expand' on:click={toggleExpand}>
+      <button
+        class='expand'
+        on:click={toggleExpand}
+        title='Expand or collapse this array (Ctrl+Click to expand/collapse recursively)'
+      >
         {#if expanded}
           <Icon data={faCaretDown} />
         {:else}
@@ -236,7 +240,11 @@
     {/if}
   {:else if type === 'object'}
     <div class='header'>
-      <button class='expand' on:click={toggleExpand}>
+      <button
+        class='expand'
+        on:click={toggleExpand}
+        title='Expand or collapse this object (Ctrl+Click to expand/collapse recursively)'
+      >
         {#if expanded}
           <Icon data={faCaretDown} />
         {:else}
