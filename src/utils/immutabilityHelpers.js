@@ -81,22 +81,12 @@ export function setIn (object, path, value) {
     return value
   }
 
-  // TODO: rewrite this function into a while loop instead of recursive (like getIn)
-
-  const key = path[0]
-
-  // TODO: check whether path is string -> object expected, path is number -> array expected
-
-  const updatedValue = setIn(object && object[key], path.slice(1), value)
-
   if (!isObjectOrArray(object)) {
-    const newObject = typeof key === 'number'
-      ? []
-      : {}
-    newObject[key] = updatedValue
-    return newObject
+    throw new Error('Path does not exist')
   }
 
+  const key = path[0]
+  const updatedValue = setIn(object[key], path.slice(1), value)
   if (object[key] === updatedValue) {
     // return original object unchanged when the new value is identical to the old one
     return object
