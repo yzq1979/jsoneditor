@@ -203,12 +203,6 @@
     }
   }
 
-
-  function handleChangeKey(key, oldKey) {
-    // console.log('handleChangeKey', { key, oldKey })
-    // TODO: this should not happen?
-  }
-
   function emitOnChange() {
     // TODO: add more logic here to emit onChange, onChangeJson, onChangeText, etc.
     onChangeJson(doc)
@@ -361,7 +355,6 @@
       path={[]}
       state={state}
       searchResult={searchResultWithActive}
-      onChangeKey={handleChangeKey}
       onPatch={handlePatch}
       onExpand={handleExpand}
       onLimit={handleLimit}

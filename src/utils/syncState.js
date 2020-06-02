@@ -15,6 +15,9 @@ import { updateProps } from './updateProps.js'
  * @returns {JSON | undefined}
  */
 export function syncState (document, state = undefined, path, expand) {
+  // TODO: this function can be made way more efficient if we pass prevState:
+  //  when immutable, we can simply be done already when the state === prevState
+
   if (isObject(document)) {
     const updatedState = {}
 

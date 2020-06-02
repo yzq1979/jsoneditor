@@ -1,5 +1,5 @@
 <script>
-  import { debounce } from 'lodash-es'
+  import { debounce, initial } from 'lodash-es'
   import {
     DEBOUNCE_DELAY, DEFAULT_LIMIT,
     STATE_EXPANDED, STATE_LIMIT, STATE_PROPS,
@@ -21,7 +21,6 @@
   export let state
   export let searchResult
   export let onPatch
-  export let onChangeKey
   export let onExpand
   export let onLimit
 
@@ -89,7 +88,13 @@
 
   function updateKey () {
     const newKey = getPlainText(domKey)
-    onChangeKey(newKey, key)
+    const parentPath = initial(path)
+
+    onPatch([{
+      op: 'move',
+      from: compileJSONPointer(parentPath.concat(key)),
+      path: compileJSONPointer(parentPath.concat(newKey))
+    }])
   }
   const updateKeyDebounced = debounce(updateKey, DEBOUNCE_DELAY)
 
@@ -169,36 +174,6 @@
     }
   }
 
-  // TODO: can we do a handleChangeKey in the child again?
-  function handleChangeKey (newChildKey, oldChildKey) {
-    if (type === 'object') {
-      // make sure the key is not a duplicate of an other property
-      const uniqueNewChildKey = findUniqueName(newChildKey, value)
-
-      if (uniqueNewChildKey !== oldChildKey) {
-        // we need to make sure that the renamed property will keep the same id
-        // const index = props.findIndex(item => item.key === oldChildKey)
-        // if (index !== -1) {
-        //   // we use splice here to replace the old key with the new new one
-        //   // already without Svelte noticing it (no assignment), so we prevent
-        //   // a needless render. We keep the same id, so the child HTML will be
-        //   // reused
-        //   // TODO: is there a better way to do this?
-        //   props.splice(index, 1, {
-        //     id: props[index].id,
-        //     key: uniqueNewChildKey
-        //   })
-        // }
-
-        onPatch([{
-          op: 'move',
-          from: compileJSONPointer(path.concat(oldChildKey)),
-          path: compileJSONPointer(path.concat(uniqueNewChildKey))
-        }])
-      }
-    }
-  }
-
   function handleShowAll () {
     onLimit(path, Infinity)
   }
@@ -243,7 +218,6 @@
             path={path.concat(index)}
             state={state && state[index]}
             searchResult={searchResult ? searchResult[index] : undefined}
-            onChangeKey={handleChangeKey}
             onPatch={onPatch}
             onExpand={onExpand}
             onLimit={onLimit}
@@ -297,7 +271,6 @@
             path={path.concat(prop.key)}
             state={state && state[prop.key]}
             searchResult={searchResult ? searchResult[prop.key] : undefined}
-            onChangeKey={handleChangeKey}
             onPatch={onPatch}
             onExpand={onExpand}
             onLimit={onLimit}
