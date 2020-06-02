@@ -45,6 +45,10 @@
 		<button id="patchJson">patch json</button>
 		<input id="loadFile" type="file">
 	</p>
+	<p>
+		<button id="expandAll">expand all</button>
+		<button id="collapseAll">collapse all</button>
+	</p>
 
 	<script type="module">
 		import jsoneditor from './dist/es/jsoneditor.js'
@@ -152,6 +156,14 @@
 				testEditor.set(json)
 			}
 			reader.readAsText(file)
+		}
+
+		document.getElementById('expandAll').onclick = function expandAll () {
+			testEditor.expandAll()
+		}
+
+		document.getElementById('collapseAll').onclick = function collapseAll () {
+			testEditor.collapseAll()
 		}
 	</script>
 </body>
