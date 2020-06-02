@@ -49,7 +49,7 @@
 	<script type="module">
 		import jsoneditor from './dist/es/jsoneditor.js'
 
-		const json = {
+		const doc = {
 			'array': [1, 2, 3, {
 				name: 'Item ' + 2,
 				id: String(2),
@@ -87,8 +87,8 @@
 		const testEditor = jsoneditor({
 			target: document.getElementById('testEditorContainer'),
 			props: {
-				json,
-				onChangeJson: json => console.log('onChangeJson', json)
+				doc,
+				onChangeJson: doc => console.log('onChangeJson', doc)
 			}
 		})
 		window.testEditor = testEditor // expose to window for debugging

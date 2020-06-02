@@ -29,18 +29,18 @@
     console.timeEnd('render')
   })
 
-  export let json = {} // TODO: rename 'json' to 'document'
+  export let doc = {}
+  let state = undefined
+
   export let onChangeJson = () => {}
 
   function expand (path) {
     return path.length < 1
   }
 
-  let state
-
   $: {
     console.time('syncState')
-    state = syncState(json, state, [], expand)
+    state = syncState(doc, state, [], expand)
     console.timeEnd('syncState')
   }
 
@@ -55,11 +55,11 @@
   let historyState = history.getState()
 
   export function get() {
-    return json
+    return doc
   }
 
-  export function set(newJson) {
-    json = newJson
+  export function set(newDocument) {
+    doc = newDocument
     state = undefined
     history.clear()
   }
@@ -67,11 +67,11 @@
   export function patch(operations) {
     const prevState = state
 
-    const documentPatchResult = immutableJSONPatch(json, operations)
+    const documentPatchResult = immutableJSONPatch(doc, operations)
     const statePatchResult = immutableJSONPatch(state, operations)
     // TODO: only apply operations to state for relevant operations: move, copy, delete? Figure out
 
-    json = documentPatchResult.json
+    doc = documentPatchResult.json
     state = statePatchResult.json
 
     // if a property is renamed (move operation), rename it in the object's props
@@ -104,7 +104,7 @@
     })
 
     return {
-      json,
+      doc,
       error: documentPatchResult.error,
       undo: documentPatchResult.revert,
       redo: operations
@@ -115,10 +115,10 @@
     if (history.getState().canUndo) {
       const item = history.undo()
       if (item) {
-        json = immutableJSONPatch(json, item.undo).json
+        doc = immutableJSONPatch(doc, item.undo).json
         state = item.prevState
 
-        console.log('undo', { item,  json, state })
+        console.log('undo', { item,  doc, state })
 
         emitOnChange()
       }
@@ -129,18 +129,18 @@
     if (history.getState().canRedo) {
       const item = history.redo()
       if (item) {
-        json = immutableJSONPatch(json, item.redo).json
+        doc = immutableJSONPatch(doc, item.redo).json
         state = item.state
 
-        console.log('redo', { item,  json, state })
+        console.log('redo', { item,  doc, state })
 
         emitOnChange()
       }
     }
   }
 
-  function doSearch(json, searchText) {
-    return search(null, json, searchText)
+  function doSearch(doc, searchText) {
+    return search(null, doc, searchText)
   }
 
   // TODO: refactor the search solution and move it in a separate component
@@ -149,7 +149,7 @@
   let activeSearchResultIndex
   let flatSearchResult
   let searchResultWithActive
-  $: searchResult = searchText ? doSearch(json, searchText) : undefined
+  $: searchResult = searchText ? doSearch(doc, searchText) : undefined
   $: flatSearchResult = flattenSearch(searchResult)
 
   $: {
@@ -211,7 +211,7 @@
 
   function emitOnChange() {
     // TODO: add more logic here to emit onChange, onChangeJson, onChangeText, etc.
-    onChangeJson(json)
+    onChangeJson(doc)
   }
 
   /**
@@ -357,7 +357,7 @@
   </div>
   <div class="contents" bind:this={divContents}>
     <Node
-      value={json}
+      value={doc}
       path={[]}
       state={state}
       searchResult={searchResultWithActive}
