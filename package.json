@@ -5,7 +5,8 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public",
-    "test": "mocha ./src/**/*.test.js"
+    "test": "mocha ./src/**/*.test.js",
+    "prepare": "node tools/fix-lodash-es.cjs"
   },
   "type": "module",
   "module": "./public/dist/es/jsoneditor.js",

@@ -1,5 +1,5 @@
 import { isObject } from './typeUtils.js'
-import uniqueId from 'lodash/uniqueId.js' // FIXME
+import { uniqueId } from 'lodash-es'
 
 export function updateProps (value, prevProps) {
   if (isObject(value)) {

@@ -6,8 +6,7 @@ import {
   setIn
 } from './immutabilityHelpers.js'
 import { compileJSONPointer, parseJSONPointer } from './jsonPointer.js'
-import initial from 'lodash/initial.js' // FIXME
-import isEqual from 'lodash/isEqual.js' // FIXME
+import { isEqual, initial } from 'lodash-es'
 
 /**
  * Apply a patch to a JSON object
