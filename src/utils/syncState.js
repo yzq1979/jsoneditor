@@ -44,13 +44,14 @@ export function syncState (document, state = undefined, path, expand, forceRefre
   if (Array.isArray(document)) {
     const updatedState = []
 
-    updatedState[STATE_LIMIT] = state
-      ? state[STATE_LIMIT]
-      : DEFAULT_LIMIT
-
     updatedState[STATE_EXPANDED] = (state && !forceRefresh)
       ? state[STATE_EXPANDED]
       : expand(path)
+
+    // note that we reset the limit when the state is not expanded
+    updatedState[STATE_LIMIT] = (state && updatedState[STATE_EXPANDED])
+      ? state[STATE_LIMIT]
+      : DEFAULT_LIMIT
 
     if (updatedState[STATE_EXPANDED]) {
       for (let i = 0; i < Math.min(document.length, updatedState[STATE_LIMIT]); i++) {
