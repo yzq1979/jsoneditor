@@ -178,6 +178,10 @@
   function handleShowAll () {
     onLimit(path, Infinity)
   }
+
+  function handleShowMore () {
+    onLimit(path, (Math.round(limit / DEFAULT_LIMIT) + 1) * DEFAULT_LIMIT)
+  }
 </script>
 
 <div class='json-node'>
@@ -229,8 +233,8 @@
           />
         {/each}
         {#if limited}
-          <div>
-            (showing {limit} of {value.length} items <button on:click={handleShowAll}>show all</button>)
+          <div class='limit'>
+            (showing {limit} of {value.length} items <button on:click={handleShowMore}>show more</button> <button on:click={handleShowAll}>show all</button>)
           </div>
         {/if}
       </div>
