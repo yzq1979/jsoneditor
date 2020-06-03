@@ -1,18 +1,20 @@
+import assert from 'assert'
 import { updateProps } from './updateProps.js'
-import { expect } from './testUtils.js' // FIXME: replace jest with mocha tests, or move to jest
 
-const test = it // TODO: replace jest with mocha tests, or move to jest
+describe('updateProps', () => {
 
-test('updateProps (1)', () => {
-  const props1 = updateProps({b: 2})
-  expect(props1.map(item => item.key)).toEqual(['b'])
+  it('updateProps (1)', () => {
+    const props1 = updateProps({b: 2})
+    assert.deepStrictEqual(props1.map(item => item.key), ['b'])
 
-  const props2 = updateProps({a: 1, b: 2}, props1)
-  expect(props2.map(item => item.key)).toEqual(['b', 'a'])
-})
+    const props2 = updateProps({a: 1, b: 2}, props1)
+    assert.deepStrictEqual(props2.map(item => item.key), ['b', 'a'])
+  })
 
-test('updateProps (2)', () => {
-  const props1 = updateProps({a: 1, b: 2})
-  const props2 = updateProps({a: 1, b: 2}, props1)
-  expect(props2).toEqual(props1)
+  it('updateProps (2)', () => {
+    const props1 = updateProps({a: 1, b: 2})
+    const props2 = updateProps({a: 1, b: 2}, props1)
+    assert.deepStrictEqual(props2, props1)
+  })
+
 })

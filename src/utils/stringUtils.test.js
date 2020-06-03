@@ -1,38 +1,38 @@
+import assert from 'assert'
 import {
   compareStrings,
   duplicateInText,
   findUniqueName,
   toCapital
 } from './stringUtils.js'
-import { expect } from './testUtils.js' // FIXME: replace jest with mocha tests, or move to jest
 
-const test = it // TODO: replace jest with mocha tests, or move to jest
+describe('stringUtils', () => {
+  it('findUniqueName', () => {
+    assert.deepStrictEqual(findUniqueName('other', {'a': true, 'b': true, 'c': true}), 'other')
+    assert.deepStrictEqual(findUniqueName('b', {'a': true, 'b': true, 'c': true}), 'b (copy)')
+    assert.deepStrictEqual(findUniqueName('b', {'a': true, 'b': true, 'c': true, 'b (copy)': true}), 'b (copy 2)')
+    assert.deepStrictEqual(findUniqueName('b', {'a': true, 'b': true, 'c': true, 'b (copy)': true, 'b (copy 2)': true}), 'b (copy 3)')
+  })
 
-test('findUniqueName', () => {
-  expect(findUniqueName('other', {'a': true, 'b': true, 'c': true})).toEqual('other')
-  expect(findUniqueName('b', {'a': true, 'b': true, 'c': true})).toEqual('b (copy)')
-  expect(findUniqueName('b', {'a': true, 'b': true, 'c': true, 'b (copy)': true})).toEqual('b (copy 2)')
-  expect(findUniqueName('b', {'a': true, 'b': true, 'c': true, 'b (copy)': true, 'b (copy 2)': true})).toEqual('b (copy 3)')
-})
+  it('toCapital', () => {
+    assert.deepStrictEqual(toCapital('hello'), 'Hello')
+    assert.deepStrictEqual(toCapital('HEllo'), 'Hello')
+    assert.deepStrictEqual(toCapital('HEllo'), 'Hello')
+    assert.deepStrictEqual(toCapital(''), '')
+    assert.deepStrictEqual(toCapital(undefined), undefined)
+  })
 
-test('toCapital', () => {
-  expect(toCapital('hello')).toEqual('Hello')
-  expect(toCapital('HEllo')).toEqual('Hello')
-  expect(toCapital('HEllo')).toEqual('Hello')
-  expect(toCapital('')).toEqual('')
-  expect(toCapital(undefined)).toEqual(undefined)
-})
+  it('compareStrings', () => {
+    assert.deepStrictEqual(compareStrings('a', 'b'), -1)
+    assert.deepStrictEqual(compareStrings('b', 'a'), 1)
+    assert.deepStrictEqual(compareStrings('a', 'a'), 0)
 
-test('compareStrings', () => {
-  expect(compareStrings('a', 'b')).toEqual(-1)
-  expect(compareStrings('b', 'a')).toEqual(1)
-  expect(compareStrings('a', 'a')).toEqual(0)
+    const array = ['b', 'c', 'a']
+    assert.deepStrictEqual(array.sort(compareStrings), ['a', 'b', 'c'])
+  })
 
-  const array = ['b', 'c', 'a']
-  expect(array.sort(compareStrings)).toEqual(['a', 'b', 'c'])
-})
-
-test('duplicateInText', () => {
-  expect(duplicateInText('abcdef', 2, 4)).toEqual('abcdcdef')
-  expect(duplicateInText('abcdef', 4, 2)).toEqual('abcdcdef')
+  it('duplicateInText', () => {
+    assert.deepStrictEqual(duplicateInText('abcdef', 2, 4), 'abcdcdef')
+    assert.deepStrictEqual(duplicateInText('abcdef', 4, 2), 'abcdcdef')
+  })
 })

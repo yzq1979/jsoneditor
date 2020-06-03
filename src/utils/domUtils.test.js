@@ -1,21 +1,21 @@
+import assert from 'assert'
 import { escapeHTML, unescapeHTML } from './domUtils.js'
-import { expect } from './testUtils.js' // FIXME: replace jest with mocha tests, or move to jest
 
-const test = it // TODO: replace jest with mocha tests, or move to jest
+describe('domUtils', () => {
+  it('escapeHTML', () => {
+    assert.strictEqual(escapeHTML('   hello  '), '\u00A0\u00A0 hello \u00A0')
+    assert.strictEqual(escapeHTML('\u00A0 hello'), '\u00A0 hello')
+    assert.strictEqual(escapeHTML('hello\nworld'), 'hello\\nworld')
 
-test('escapeHTML', () => {
-  expect(escapeHTML('   hello  ')).toEqual('\u00A0\u00A0 hello \u00A0')
-  expect(escapeHTML('\u00A0 hello')).toEqual('\u00A0 hello')
-  expect(escapeHTML('hello\nworld')).toEqual('hello\\nworld')
+    // TODO: test escapeHTML more thoroughly
+  })
 
-  // TODO: test escapeHTML more thoroughly
-})
+  it('unescapeHTML', () => {
+    assert.strictEqual(unescapeHTML(' \u00A0 hello \u00A0'), '   hello  ')
+    assert.strictEqual(unescapeHTML('\u00A0 hello'), '  hello')
 
-test('unescapeHTML', () => {
-  expect(unescapeHTML(' \u00A0 hello \u00A0')).toEqual('   hello  ')
-  expect(unescapeHTML('\u00A0 hello')).toEqual('  hello')
+    assert.strictEqual(unescapeHTML('hello\\nworld'), 'hello\nworld')
 
-  expect(unescapeHTML('hello\\nworld')).toEqual('hello\nworld')
-
-  // TODO: test unescapeHTML more thoroughly
+    // TODO: test unescapeHTML more thoroughly
+  })
 })
