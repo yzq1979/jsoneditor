@@ -1,6 +1,8 @@
 {
-  "name": "svelte-app",
-  "version": "1.0.0",
+  "name": "jsoneditor-svelte",
+  "version": "0.0.1",
+  "type": "module",
+  "module": "./public/dist/es/jsoneditor.js",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -8,8 +10,11 @@
     "test": "mocha ./src/**/*.test.js",
     "prepare": "node tools/fix-lodash-es.cjs"
   },
-  "type": "module",
-  "module": "./public/dist/es/jsoneditor.js",
+  "license": "(MIT OR Apache-2.0)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/josdejong/jsoneditor.git"
+  },
   "dependencies": {
     "@fortawesome/free-regular-svg-icons": "5.13.0",
     "@fortawesome/free-solid-svg-icons": "5.13.0",
