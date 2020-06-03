@@ -42,6 +42,26 @@ export function shallowClone (value) {
 }
 
 /**
+ * Update a value in an object in an immutable way.
+ * If the value is unchanged, the original object will be returned
+ * @param {Object | Array} object
+ * @param {string | index} key
+ * @param {*} value
+ * @returns {Object | Array}
+ */
+export function applyProp (object, key, value) {
+  if (object[key] === value) {
+    // return original object unchanged when the new value is identical to the old one
+    return object
+  }
+  else {
+    const updatedObject = shallowClone(object)
+    updatedObject[key] = value
+    return updatedObject
+  }
+}
+
+/**
  * helper function to get a nested property in an object or array
  *
  * @param {Object | Array} object
@@ -87,15 +107,7 @@ export function setIn (object, path, value) {
 
   const key = path[0]
   const updatedValue = setIn(object[key], path.slice(1), value)
-  if (object[key] === updatedValue) {
-    // return original object unchanged when the new value is identical to the old one
-    return object
-  }
-  else {
-    const updatedObject = shallowClone(object)
-    updatedObject[key] = updatedValue
-    return updatedObject
-  }
+  return applyProp(object, key, updatedValue)
 }
 
 /**
@@ -118,16 +130,7 @@ export function updateIn (object, path, callback) {
 
   const key = path[0]
   const updatedValue = updateIn(object[key], path.slice(1), callback)
-  // TODO: create a function applyProp(...) which does the following if/else construct
-  if (object[key] === updatedValue) {
-    // return original object unchanged when the new value is identical to the old one
-    return object
-  }
-  else {
-    const updatedObject = shallowClone(object)
-    updatedObject[key] = updatedValue
-    return updatedObject
-  }
+  return applyProp(object, key, updatedValue)
 }
 
 /**
@@ -144,7 +147,7 @@ export function deleteIn (object, path) {
   }
 
   if (!isObjectOrArray(object)) {
-    return object
+    throw new Error('Path does not exist')
   }
 
   if (path.length === 1) {
@@ -169,15 +172,7 @@ export function deleteIn (object, path) {
 
   const key = path[0]
   const updatedValue = deleteIn(object[key], path.slice(1))
-  if (object[key] === updatedValue) {
-    // object is unchanged
-    return object
-  }
-  else {
-    const updatedObject = shallowClone(object)
-    updatedObject[key] = updatedValue
-    return updatedObject
-  }
+  return applyProp(object, key, updatedValue)
 }
 
 /**
@@ -200,7 +195,7 @@ export function insertAt (object, path, value) {
       throw new TypeError('Array expected at path ' + JSON.stringify(parentPath))
     }
 
-    const updatedItems = shallowClone(items)
+    const updatedItems = items.slice()
     updatedItems.splice(index, 0, value)
 
     return updatedItems
